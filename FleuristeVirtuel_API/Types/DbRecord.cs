@@ -311,7 +311,7 @@ namespace FleuristeVirtuel_API.Types
             T child = CreateEmptyOrGetInstance<T>(primaryKeyValues);
             foreach (KeyValuePair<string, PropertyInfo> pair in allColumnsMembers)
             {
-                pair.Value.SetValue(child, reader[pair.Key]);
+                pair.Value.SetValue(child, Convert.ChangeType(reader[pair.Key], pair.Value.PropertyType));
             }
 
             return child;

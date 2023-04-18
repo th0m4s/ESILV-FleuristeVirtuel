@@ -19,6 +19,9 @@ namespace FleuristeVirtuel_API.Types
         public string? commentaire_commande { get; set; }
 
         [DbColumn]
+        public uint id_magasin { get; set; }
+
+        [DbColumn]
         public float? prix_maximum { get; set; }
 
         [DbColumn]
@@ -31,7 +34,7 @@ namespace FleuristeVirtuel_API.Types
         public string? statut { get; set; }
 
         [DbColumn]
-        public float pourc_reduc_prix { get; set; }
+        public uint pourc_reduc_prix { get; set; }
 
         [DbColumn]
         public uint id_adresse { get; set; }
@@ -39,6 +42,8 @@ namespace FleuristeVirtuel_API.Types
         [DbColumn]
         public uint id_client { get; set; }
 
+        [ForeignReference("magasin", "id_magasin", "id_magasin")]
+        public TMagasin? magasin { get; set; }
 
         [ForeignReference("adresse", "id_adresse", "id_adresse")]
         public TAdresse? adresse_livraison { get; set; }

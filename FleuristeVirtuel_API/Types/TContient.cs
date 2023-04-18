@@ -16,8 +16,8 @@ namespace FleuristeVirtuel_API.Types
         [DbColumn]
         public uint id_produit { get; private set; }
 
-        [DbColumn("quantite_commande")]
-        public uint quantite { get; set; }
+        [DbColumn]
+        public uint quantite_contient { get; set; }
 
         [DbColumn("prix_item_commande")]
         public float prix_unit { get; set; }

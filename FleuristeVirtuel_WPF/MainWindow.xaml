@@ -10,6 +10,8 @@
         Title="FleuristeVirtuel - WPF GUI" MinHeight="450" MinWidth="800" Height="450" Width="800">
     <Window.Resources>
         <local:DbRecordConverter x:Key="DbRecordConverter" />
+        <local:PriceConverter x:Key="PriceConverter" />
+        <local:ProductCategoryConverter x:Key="ProductCategoryConverter" />
     </Window.Resources>
 
     <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
@@ -85,7 +87,8 @@
                 </Grid>
 
                 <DataGrid Grid.Row="1" x:Name="Magasin_DataGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False">
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          SelectedCellsChanged="DataGrid_SelectedCellsChanged">
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
@@ -122,7 +125,8 @@
                 </DataGrid>
             </Grid>
         </TabItem>
-        <TabItem>
+        
+        <TabItem x:Name="Produit_Tab">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <fa:FontAwesome Icon="Solid_BasketShopping" Style="{StaticResource MainTabItemHeaderIcon}"/>
@@ -130,9 +134,69 @@
                 </StackPanel>
             </TabItem.Header>
             <Grid Style="{StaticResource MainTabGridStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                    <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des produits :</TextBlock>
+                    <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
+                        <Button x:Name="Produit_Add" Click="Produit_Add_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_Plus" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Ajouter</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="Produit_Reload" Click="Produit_Reload_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
+                <DataGrid Grid.Row="1" x:Name="Produit_DataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          SelectedCellsChanged="DataGrid_SelectedCellsChanged">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#ID" Binding="{Binding id_produit}" Width="30" CanUserResize="False" />
+                        <DataGridTextColumn Header="Nom" Binding="{Binding nom_produit}" Width="*" />
+                        <DataGridTextColumn Header="Prix" Binding="{Binding prix_produit, Converter={StaticResource PriceConverter}}" Width="120" />
+                        <DataGridTextColumn Header="Catégorie" Binding="{Binding categorie_produit, Converter={StaticResource ProductCategoryConverter}}" Width="200" />
+                        <DataGridTemplateColumn Header="Actions" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}"
+                                                x:Name="Produit_Edit" Click="Produit_Edit_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Modifier</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}" Margin="3,0,0,0"
+                                                x:Name="Produit_Delete" Click="Produit_Delete_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_Trash" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Supprimer</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </TabItem>
+        
         <TabItem>
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
@@ -144,6 +208,7 @@
 
             </Grid>
         </TabItem>
+        
         <TabItem>
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
@@ -155,6 +220,7 @@
 
             </Grid>
         </TabItem>
+        
         <TabItem>
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">

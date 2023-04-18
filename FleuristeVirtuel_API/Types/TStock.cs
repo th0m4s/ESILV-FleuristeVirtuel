@@ -10,13 +10,14 @@ namespace FleuristeVirtuel_API.Types
     {
         [PrimaryKey(0)]
         [DbColumn]
-        public int id_produit { get; private set; }
+        public uint id_produit { get; private set; }
 
         [PrimaryKey(1)]
         [DbColumn]
-        public int id_magasin { get; private set; }
+        public uint id_magasin { get; private set; }
 
-        public string Comment { get; set; } = "";
+        [DbColumn]
+        public uint quantite_stock { get; set; }
 
         [ForeignReference("produit", "id_produit", "id_produit")]
         public TProduit? produit { get; set; }

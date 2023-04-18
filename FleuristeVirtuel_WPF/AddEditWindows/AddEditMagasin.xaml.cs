@@ -48,15 +48,6 @@ namespace FleuristeVirtuel_WPF
         {
             Submitted = true;
 
-            if (value == null)
-            {
-                value = new();
-                value.adresse_localisation = new();
-            }
-
-            if (value.adresse_localisation == null)
-                throw new Exception("Invalid data state!");
-
             if(nom_magasin.Text.Trim().Length == 0)
             {
                 MessageBox.Show("Le nom du magasin ne peut pas être vide", "Donnée invalide", MessageBoxButton.OK);
@@ -86,6 +77,15 @@ namespace FleuristeVirtuel_WPF
                 MessageBox.Show("Le code postal de l'adresse n'est pas valide", "Donnée invalide", MessageBoxButton.OK);
                 return;
             }
+
+            if (value == null)
+            {
+                value = new();
+                value.adresse_localisation = new();
+            }
+
+            if (value.adresse_localisation == null)
+                throw new Exception("Invalid data state!");
 
             value.nom_magasin = nom_magasin.Text;
             value.adresse_localisation.numero_rue = numero_rue_val;

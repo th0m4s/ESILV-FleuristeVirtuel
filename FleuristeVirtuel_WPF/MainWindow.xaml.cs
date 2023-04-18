@@ -31,6 +31,47 @@ namespace FleuristeVirtuel_WPF
         }
     }
 
+    public class PriceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            return value?.ToString() + "€" ?? "0€";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if (value is string str)
+            {
+                return str.ToLower();
+            }
+            else return value;
+        }
+    }
+
+    public class ProductCategoryConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if(value is string str)
+            {
+                switch(str)
+                {
+                    case "fleur":
+                        return "Fleur";
+                    case "accessoire":
+                        return "Accessoire";
+                }
+            }
+            
+            return value?.ToString() ?? "null";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -49,6 +90,12 @@ namespace FleuristeVirtuel_WPF
             List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
             foreach(var m in magasins) m.FetchForeignReferences(conn);
             Magasin_DataGrid.ItemsSource = magasins;
+        }
+
+        public void Reload_Produits()
+        {
+            List<TProduit> produits = conn.SelectMultipleRecords<TProduit>("SELECT * FROM produit");
+            Produit_DataGrid.ItemsSource = produits;
         }
 
         private void Magasin_Add_Click(object sender, RoutedEventArgs e)
@@ -82,6 +129,9 @@ namespace FleuristeVirtuel_WPF
                 if (tab.Name == "Magasin_Tab")
                 {
                     Reload_Magasins();
+                } else if (tab.Name == "Produit_Tab")
+                {
+                    Reload_Produits();
                 }
             }
         }
@@ -124,11 +174,72 @@ namespace FleuristeVirtuel_WPF
                 }
             }
         }
+
+        private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            if (sender is DataGrid datagridSender && e.AddedCells?.Count > 0)
+                datagridSender.UnselectAll();
+        }
+
+        private void Produit_Add_Click(object sender, RoutedEventArgs e)
+        {
+            AddEditProduit addEditWindow = new();
+            addEditWindow.ShowDialog();
+
+            TProduit? new_produit = addEditWindow.value;
+            if (addEditWindow.Submitted && new_produit != null)
+            {
+                new_produit.InsertInto("produit", conn);
+
+                Reload_Produits();
+            }
+        }
+
+        private void Produit_Reload_Click(object sender, RoutedEventArgs e)
+        {
+            Reload_Produits();
+        }
+
+        private void Produit_Edit_Click(object sender, RoutedEventArgs e)
+        {
+            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
+            {
+                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
+
+                AddEditProduit addEditWindow = new(produit);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
+                {
+                    produit.Update("produit", conn);
+
+                    Reload_Produits();
+                }
+            }
+        }
+
+        private void Produit_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
+            {
+                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
+
+                if (MessageBox.Show("Voulez-vous supprimer le produit #" + id_produit + " (" + produit.nom_produit + ")\n\n" +
+                    "Cette action sera impossible si le produit est utilisé dans un bouquet ou une commande.",
+                    "Suppression d'un produit", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    produit.DeleteFrom("produit", conn);
+                    Reload_Produits();
+                }
+            }
+        }
     }
 
     public static class CustomDataClass
     {
 
+        // si jamais on fait une propriété de type int ou uint, il n'y aurait pas de conversion à faire dans les edit/delete
+        // mais on risque des problèmes si on se trompe dans le xaml
         public static readonly DependencyProperty CustomDataProperty = DependencyProperty.RegisterAttached("CustomData",
             typeof(string), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
 

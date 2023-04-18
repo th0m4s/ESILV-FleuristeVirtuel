@@ -16,6 +16,9 @@ namespace FleuristeVirtuel_API.Types
         [DbColumn]
         public uint id_bouquet { get; private set; }
 
+        [DbColumn]
+        public uint quantite_compose { get; set; }
+
         [ForeignReference("produit", "id_produit", "id_produit")]
         public TProduit? produit { get; set; }
 
