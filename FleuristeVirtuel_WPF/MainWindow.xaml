@@ -30,7 +30,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <StackPanel Height="Auto" Grid.Row="1">
-                    <Grid>
+                    <Grid Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -40,13 +40,35 @@
                         <Image Source="resources/logo.ico" Height="36" Grid.Column="1"/>
                         <TextBlock FontSize="36" FontWeight="Bold" Margin="10,0,0,5" Grid.Column="2">Fleuriste Virtuel</TextBlock>
                     </Grid>
-                    <TextBlock FontSize="16" TextAlignment="Center" Margin="0,0,0,40">Plateforme d'administration de la base de données</TextBlock>
+                    <StackPanel x:Name="index_logout_panel" Visibility="Collapsed">
+                        <TextBlock TextAlignment="Center" FontSize="14" x:Name="index_current_account">Actuellement connecté en tant que...</TextBlock>
+                        <Button x:Name="LogoutButton" Click="LogoutButton_Click" Margin="0,10,0,0" Width="330">Déconnexion</Button>
+                    </StackPanel>
+                    <StackPanel x:Name="index_login_panel">
+                        <TextBlock TextAlignment="Center" FontSize="14">
+                            Merci de vous connecter à votre compte client ou administrateur afin d'accéder au logiciel :
+                        </TextBlock>
+                        <Grid Width="330" Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Right">Nom d'utilisateur/Email :</TextBlock>
+                            <TextBox x:Name="login_textbox_user" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0" />
 
-                    <TextBlock TextAlignment="Center" Margin="100,0" TextWrapping="Wrap">
-                        Dans chaque onglet, vous trouvez un type d'entité représenté dans la base.<LineBreak/>
-                        Chaque onglet contient une liste des éléments, mais des boutons "Recherche" permettent de filtrer les résultats.
-                        On y trouve les boutons pour ajouter, modifier et supprimer des enregistrements.
-                    </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="2" TextAlignment="Right">Mot de passe :</TextBlock>
+                            <PasswordBox x:Name="login_textbox_password" Grid.Column="1" Grid.Row="2" Margin="5,0,0,0" />
+
+                            <Button x:Name="LogginButton" Click="LogginButton_Click" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4">Connexion</Button>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
 
                 <TextBlock Grid.Row="3" TextAlignment="Center" Margin="0,0,0,15">
@@ -71,13 +93,13 @@
                 <Grid Grid.Row="0" Grid.ColumnSpan="2">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des magasins :</TextBlock>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
-                        <Button x:Name="Magasin_Add" Click="Magasin_Add_Click">
+                        <Button x:Name="Magasin_Add" Click="Magasin_Add_Click" IsEnabled="{Binding CanEdit}">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_Plus" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Ajouter</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="Magasin_Reload" Click="Magasin_Reload_Click">
+                        <Button x:Name="Magasin_Reload" Click="Magasin_Reload_Click" IsEnabled="{Binding CanEdit}">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
@@ -103,6 +125,7 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
                                         <Button local:CustomDataClass.CustomData="{Binding id_magasin}"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Magasin_Edit" Click="Magasin_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
@@ -111,6 +134,7 @@
                                         </Button>
 
                                         <Button local:CustomDataClass.CustomData="{Binding id_magasin}" Margin="3,0,0,0"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Magasin_Delete" Click="Magasin_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <fa:FontAwesome Icon="Solid_Trash" Style="{StaticResource DataActionIcon}" />
@@ -141,13 +165,13 @@
                 <Grid Grid.Row="0" Grid.ColumnSpan="2">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des produits :</TextBlock>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
-                        <Button x:Name="Produit_Add" Click="Produit_Add_Click">
+                        <Button x:Name="Produit_Add" Click="Produit_Add_Click" IsEnabled="{Binding CanEdit}">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_Plus" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Ajouter</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="Produit_Reload" Click="Produit_Reload_Click">
+                        <Button x:Name="Produit_Reload" Click="Produit_Reload_Click" IsEnabled="{Binding CanEdit}">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
@@ -174,6 +198,7 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
                                         <Button local:CustomDataClass.CustomData="{Binding id_produit}"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Produit_Edit" Click="Produit_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
@@ -182,6 +207,7 @@
                                         </Button>
 
                                         <Button local:CustomDataClass.CustomData="{Binding id_produit}" Margin="3,0,0,0"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Produit_Delete" Click="Produit_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <fa:FontAwesome Icon="Solid_Trash" Style="{StaticResource DataActionIcon}" />
@@ -197,7 +223,7 @@
             </Grid>
         </TabItem>
         
-        <TabItem>
+        <TabItem x:Name="Bouquet_Tab">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <fa:FontAwesome Icon="Solid_List" Style="{StaticResource MainTabItemHeaderIcon}"/>
@@ -209,7 +235,7 @@
             </Grid>
         </TabItem>
         
-        <TabItem>
+        <TabItem x:Name="Client_Tab">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <fa:FontAwesome Icon="Solid_User" Style="{StaticResource MainTabItemHeaderIcon}"/>
@@ -221,7 +247,7 @@
             </Grid>
         </TabItem>
         
-        <TabItem>
+        <TabItem x:Name="Commande_Tab">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <fa:FontAwesome Icon="Solid_CartShopping" Style="{StaticResource MainTabItemHeaderIcon}"/>

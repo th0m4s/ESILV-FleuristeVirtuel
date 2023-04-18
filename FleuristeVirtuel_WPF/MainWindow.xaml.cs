@@ -2,8 +2,10 @@
 using FleuristeVirtuel_API.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -75,14 +77,83 @@ namespace FleuristeVirtuel_WPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : GUIWindow
+    public partial class MainWindow : GUIWindow, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        LoggedInStatus accountStatus = LoggedInStatus.None;
+        string currentUser = "";
+        private bool canEdit = false;
+        public bool CanEdit
+        {
+            get => canEdit;
+            set
+            {
+                canEdit = value;
+                OnPropertyChanged();
+            }
+        }
+
         DbConnection conn;
 
-        public MainWindow()
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
-            conn = new();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private static Dictionary<string, KeyValuePair<string, bool>> admin_accounts = new()
+        {
+            ["root"] = new("root", true),
+            ["bozo"] = new("bozo", false)
+        };
+
+        public MainWindow()
+        {            
             InitializeComponent();
+            DataContext = this;
+
+            conn = new();
+            UpdateViewFromAccountStatus();
+            
+            // we should use environment variables as this is not secure AT ALL
+            // but we are required to use this username/password and our teachers might not change an environment
+            // variable from MODE=dev to MODE=prod (for example)
+            Login("root", "root");
+        }
+
+        public bool IsLoggedIn()
+        {
+            return conn != null;
+        }
+
+        public void UpdateViewFromAccountStatus()
+        {
+            if(accountStatus == LoggedInStatus.None)
+            {
+                index_login_panel.Visibility = Visibility.Visible;
+                index_logout_panel.Visibility = Visibility.Collapsed;
+            } else
+            {
+                index_login_panel.Visibility = Visibility.Collapsed;
+                index_logout_panel.Visibility = Visibility.Visible;
+                
+                if(accountStatus == LoggedInStatus.Client)
+                {
+                    index_current_account.Text = "Actuellement connecté en tant que client : " + currentUser;
+                } else
+                {
+                    index_current_account.Text = "Actuallement connecté en tant qu'administrateur : " + currentUser;
+                    if (!CanEdit) index_current_account.Text += " (lecture seule)";
+                }
+            }
+
+            Visibility adminTabVisiblity = accountStatus == LoggedInStatus.Admin ? Visibility.Visible : Visibility.Collapsed;
+
+            Magasin_Tab.Visibility = adminTabVisiblity;
+            Produit_Tab.Visibility = adminTabVisiblity;
+            Bouquet_Tab.Visibility = adminTabVisiblity;
+            Client_Tab.Visibility = adminTabVisiblity;
+            Commande_Tab.Visibility = adminTabVisiblity;
         }
 
         public void Reload_Magasins()
@@ -233,6 +304,73 @@ namespace FleuristeVirtuel_WPF
                 }
             }
         }
+
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(accountStatus != LoggedInStatus.None)
+            {
+                currentUser = "";
+                accountStatus = LoggedInStatus.None;
+                conn.DisposeCurrentConnection();
+
+                login_textbox_user.Text = "";
+                login_textbox_password.Password = "";
+
+                UpdateViewFromAccountStatus();
+            }
+        }
+
+        private void Login(string userEmail, string password)
+        {
+            if (userEmail.Length == 0 || password.Length == 0) return;
+
+            foreach (var account in admin_accounts)
+            {
+                if (account.Key == userEmail && account.Value.Key == password)
+                {
+                    accountStatus = LoggedInStatus.Admin;
+                    CanEdit = account.Value.Value;
+                    conn.Open(userEmail, password);
+                    break;
+                }
+            }
+
+            if (accountStatus == LoggedInStatus.None)
+            {
+                conn.Open("root", "root");
+                int count = conn.SelectSingleCell<int>("SELECT COUNT(*) FROM client WHERE email_client = @email AND mot_de_passe = @password",
+                    0, new DbParam("@email", userEmail), new DbParam("@password", password));
+
+                if (count > 0)
+                {
+                    accountStatus = LoggedInStatus.Client;
+                }
+                else
+                {
+                    conn.DisposeCurrentConnection();
+                }
+            }
+
+            if (accountStatus == LoggedInStatus.None)
+                MessageBox.Show("L'email/nom d'utilisateur et/ou le mot de passe ne correspondent pas !",
+                    "Informations invalide !", MessageBoxButton.OK);
+            else
+            {
+                currentUser = userEmail;
+                UpdateViewFromAccountStatus();
+            }
+        }
+
+        private void LogginButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(accountStatus == LoggedInStatus.None)
+            {
+                string userEmail = login_textbox_user.Text.Trim();
+                string password = login_textbox_password.Password.Trim();
+
+                Login(userEmail, password);
+            }
+        }
     }
 
     public static class CustomDataClass
@@ -255,5 +393,10 @@ namespace FleuristeVirtuel_WPF
                 throw new ArgumentNullException("element");
             element.SetValue(CustomDataProperty, value);
         }
+    }
+
+    public enum LoggedInStatus
+    {
+        None, Client, Admin
     }
 }

@@ -18,6 +18,7 @@ CREATE TABLE client (
     mot_de_passe VARCHAR(255) NOT NULL,
     carte_de_credit VARCHAR(255) NOT NULL,
     id_adresse INT UNSIGNED NOT NULL,
+    UNIQUE KEY `email_client` (`email_client`),
     CONSTRAINT fk_client_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse)
 );
 
@@ -84,3 +85,7 @@ CREATE TABLE contient (
     CONSTRAINT fk_contient_produit FOREIGN KEY (id_produit) REFERENCES produit(id_produit),
     PRIMARY KEY (id_commande, id_produit)
 );
+
+DROP USER IF EXISTS bozo@localhost;
+CREATE USER bozo@localhost IDENTIFIED BY 'bozo';
+GRANT SELECT ON fleurs.* TO bozo@localhost;

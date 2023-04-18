@@ -5,15 +5,13 @@ using System.Reflection;
 
 namespace FleuristeVirtuel_API
 {
-    public class DbConnection : IDisposable
+    public class DbConnection
     {
         private const string DB_SERVER = "localhost";
         private const uint DB_PORT = 3306;
         private const string DB_NAME = "fleurs";
-        private const string DB_UID = "root";
-        private const string DB_PASSWORD = "root";
 
-        public MySqlConnection Connection { get; private set; }
+        public MySqlConnection? Connection { get; private set; }
 
         public DbConnection(MySqlConnection connection)
         {
@@ -21,18 +19,36 @@ namespace FleuristeVirtuel_API
             Connection = connection;
         }
 
+        public DbConnection() { }
+
         ~DbConnection()
         {
-            Dispose();
+            DisposeCurrentConnection();
         }
 
-        public DbConnection(string server, uint port, string name, string uid, string password)
-            : this(new($"SERVER={server};PORT={port};DATABASE={name};UID={uid};PASSWORD={password}")) { }
+        public void DisposeCurrentConnection()
+        {
+            Connection?.Dispose();
+        }
 
-        public DbConnection() : this(DB_SERVER, DB_PORT, DB_NAME, DB_UID, DB_PASSWORD) { }
+        public void Open(string server, uint port, string name, string uid, string password)
+        {
+            DisposeCurrentConnection();
+
+            Connection = new($"SERVER={server};PORT={port};DATABASE={name};UID={uid};PASSWORD={password}");
+            Connection.Open();
+        }
+
+        public void Open(string uid, string password)
+        {
+            Open(DB_SERVER, DB_PORT, DB_NAME, uid, password);
+        }
 
         public MySqlCommand PrepareCommand(string commandText, params DbParam[] parameters)
         {
+            if (Connection == null || Connection.State != ConnectionState.Open)
+                throw new Exception("Database connection not opened!");
+
             MySqlCommand command = new(commandText, Connection);
             foreach (var p in parameters)
             {
@@ -79,8 +95,8 @@ namespace FleuristeVirtuel_API
             {
                 reader.Read();
                 Type columnIndexType = nonNullableColumn.GetType();
-                if (columnIndexType == typeof(int)) return (T)reader[(int)nonNullableColumn];
-                else if (columnIndexType == typeof(string)) return (T)reader[(string)nonNullableColumn];
+                if (columnIndexType == typeof(int)) return (T)Convert.ChangeType(reader[(int)nonNullableColumn], typeof(T));
+                else if (columnIndexType == typeof(string)) return (T)Convert.ChangeType(reader[(string)nonNullableColumn], typeof(T));
             }
 
             return default;
@@ -150,12 +166,6 @@ namespace FleuristeVirtuel_API
         }*/
 
         // END OF 2-WAYS METHODS
-
-        public void Dispose()
-        {
-            Connection.Dispose();
-            GC.SuppressFinalize(this);
-        }
     }
 
     public struct DbParam
