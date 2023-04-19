@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:FleuristeVirtuel_WPF"
         mc:Ignorable="d"
         ResizeMode="NoResize"
+        AllowMaximize="False"
         Style="{StaticResource GUIWindowStyles}"
         Title="" Height="200" Width="300">
     <Window.Resources>

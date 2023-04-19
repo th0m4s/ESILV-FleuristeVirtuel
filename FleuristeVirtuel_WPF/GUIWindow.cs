@@ -7,6 +7,21 @@ namespace FleuristeVirtuel_WPF
 {
     public partial class GUIWindow : Window
     {
+        public static readonly DependencyProperty AllowMaximizeProperty = DependencyProperty.Register(
+                    "AllowMaximize", typeof(bool), typeof(GUIWindow), new PropertyMetadata(true));
+        public bool AllowMaximize
+        {
+            get
+            {
+                return (bool)GetValue(AllowMaximizeProperty);
+            }
+
+            set
+            {
+                SetValue(AllowMaximizeProperty, value);
+            }
+        }
+
         public Grid? WindowRoot { get; private set; }
         public Grid? LayoutRoot { get; private set; }
         public Grid? HeaderBar { get; private set; }
@@ -39,6 +54,11 @@ namespace FleuristeVirtuel_WPF
             HeaderBar.MouseDown += HeaderBar_MouseDown;
             StateChanged += GUIWindow_StateChanged;
 
+            if(!AllowMaximize)
+            {
+                MaximizeButton.Visibility = Visibility.Collapsed;
+                MinimizeButton.Margin = MaximizeButton.Margin;
+            }
 
             base.OnApplyTemplate();
         }

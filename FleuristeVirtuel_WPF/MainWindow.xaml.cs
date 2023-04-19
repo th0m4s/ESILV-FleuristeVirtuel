@@ -169,6 +169,13 @@ namespace FleuristeVirtuel_WPF
             Produit_DataGrid.ItemsSource = produits;
         }
 
+        public void Reload_Clients()
+        {
+            List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * from client");
+            foreach(var c in clients) c.FetchForeignReferences(conn);
+            Client_DataGrid.ItemsSource = clients;
+        }
+
         private void Magasin_Add_Click(object sender, RoutedEventArgs e)
         {
             AddEditMagasin addEditWindow = new();
@@ -197,18 +204,24 @@ namespace FleuristeVirtuel_WPF
                 TabItem? tab = ((TabControl)e.Source).SelectedItem as TabItem;
                 if (tab == null) return;
 
-                if (tab.Name == "Magasin_Tab")
+                switch(tab.Name)
                 {
-                    Reload_Magasins();
-                } else if (tab.Name == "Produit_Tab")
-                {
-                    Reload_Produits();
+                    case "Magasin_Tab":
+                        Reload_Magasins();
+                        break;
+                    case "Produit_Tab":
+                        Reload_Produits();
+                        break;
+                    case "Client_Tab":
+                        Reload_Clients();
+                        break;
                 }
             }
         }
 
         private void Magasin_Reload_Click(object sender, RoutedEventArgs e)
         {
+            MessageWindow.Show("ceci est un long message\n\nsur plsueirus lignes\n\nhey\n\n\n\n\nplease continue", true, false, true);
             Reload_Magasins();
         }
         private void Magasin_Delete_Click(object sender, RoutedEventArgs e)
@@ -369,6 +382,63 @@ namespace FleuristeVirtuel_WPF
                 string password = login_textbox_password.Password.Trim();
 
                 Login(userEmail, password);
+            }
+        }
+
+        private void Client_Add_Click(object sender, RoutedEventArgs e)
+        {
+            AddEditClient addEditWindow = new();
+            addEditWindow.ShowDialog();
+
+            TClient? new_client = addEditWindow.value;
+            if (addEditWindow.Submitted && new_client != null && new_client.adresse_facturation != null)
+            {
+                new_client.adresse_facturation.InsertInto("adresse", conn);
+                new_client.id_adresse = new_client.adresse_facturation.id_adresse;
+                new_client.InsertInto("client", conn);
+
+                Reload_Clients();
+            }
+        }
+
+        private void Client_Reload_Click(object sender, RoutedEventArgs e)
+        {
+            Reload_Clients();
+        }
+
+        private void Client_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
+            {
+                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
+
+                if (MessageBox.Show("Voulez-vous supprimer le client #" + id_client + " (" + client.prenom_client + " " + client.nom_client + ")\n\n" +
+                    "Cette action sera impossible si le client a déjà passé une commande.",
+                    "Suppression d'un client", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    client.DeleteFrom("client", conn);
+                    client.adresse_facturation?.DeleteFrom("adresse", conn);
+                    Reload_Clients();
+                }
+            }
+        }
+
+        private void Client_Edit_Click(object sender, RoutedEventArgs e)
+        {
+            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
+            {
+                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
+
+                AddEditClient addEditWindow = new(client);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
+                {
+                    client.Update("client", conn);
+                    client.adresse_facturation?.Update("adresse", conn);
+
+                    Reload_Clients();
+                }
             }
         }
     }

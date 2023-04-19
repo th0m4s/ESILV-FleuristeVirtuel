@@ -99,7 +99,7 @@
                                 <TextBlock>Ajouter</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="Magasin_Reload" Click="Magasin_Reload_Click" IsEnabled="{Binding CanEdit}">
+                        <Button x:Name="Magasin_Reload" Click="Magasin_Reload_Click">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
@@ -171,7 +171,7 @@
                                 <TextBlock>Ajouter</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="Produit_Reload" Click="Produit_Reload_Click" IsEnabled="{Binding CanEdit}">
+                        <Button x:Name="Produit_Reload" Click="Produit_Reload_Click">
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
@@ -243,7 +243,69 @@
                 </StackPanel>
             </TabItem.Header>
             <Grid Style="{StaticResource MainTabGridStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                    <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des clients :</TextBlock>
+                    <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
+                        <Button x:Name="Client_Add" Click="Client_Add_Click" IsEnabled="{Binding CanEdit}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_Plus" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Ajouter</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="Client_Reload" Click="Client_Reload_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
+                <DataGrid Grid.Row="1" x:Name="Client_DataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          SelectedCellsChanged="DataGrid_SelectedCellsChanged">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#ID" Binding="{Binding id_client}" Width="30" CanUserResize="False" />
+                        <DataGridTextColumn Header="Nom" Binding="{Binding nom_client}" Width="90" />
+                        <DataGridTextColumn Header="Prénom" Binding="{Binding prenom_client}" Width="90" />
+                        <DataGridTextColumn Header="Email" Binding="{Binding email_client}" Width="170" />
+                        <DataGridTextColumn Header="Adresse" Binding="{Binding adresse_facturation, Converter={StaticResource DbRecordConverter}}" Width="*" />
+                        <DataGridTemplateColumn Header="Actions" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button local:CustomDataClass.CustomData="{Binding id_client}"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
+                                                x:Name="Client_Edit" Click="Client_Edit_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Modifier</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button local:CustomDataClass.CustomData="{Binding id_client}" Margin="3,0,0,0"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
+                                                x:Name="Client_Delete" Click="Client_Delete_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_Trash" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Supprimer</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </TabItem>
         

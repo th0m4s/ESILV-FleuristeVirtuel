@@ -1,4 +1,4 @@
-﻿<local:GUIWindow x:Class="FleuristeVirtuel_WPF.AddEditMagasin"
+﻿<local:GUIWindow x:Class="FleuristeVirtuel_WPF.AddEditClient"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,13 +8,37 @@
         ResizeMode="NoResize"
         AllowMaximize="False"
         Style="{StaticResource GUIWindowStyles}"
-        Title="" Height="200" Width="300">
+        Title="" Height="345" Width="300">
     <Grid Style="{StaticResource AddEditWindowStyle}">
         <StackPanel>
-            <TextBlock>Nom du magasin :</TextBlock>
-            <TextBox x:Name="nom_magasin" />
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0">Nom :</TextBlock>
+                <TextBox x:Name="nom_client" Grid.Row="1" Grid.Column="0"/>
 
-            <TextBlock Margin="0,10,0,0">Adresse :</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="2">Prénom :</TextBlock>
+                <TextBox x:Name="prenom_client" Grid.Row="1" Grid.Column="2"/>
+            </Grid>
+            
+            <TextBlock>Email du client :</TextBlock>
+            <TextBox Margin="0,3,0,8" x:Name="email_client" />
+
+            <TextBlock>Carte de crédit :</TextBlock>
+            <TextBox Margin="0,3,0,8" x:Name="carte_de_credit" />
+            
+            <TextBlock>Mot de passe :</TextBlock>
+            <TextBlock x:Name="mot_de_passe_help" Margin="0,3,0,3" FontSize="6">Laissez la case vide pour ne pas le remplacer</TextBlock>
+            <PasswordBox x:Name="mot_de_passe" />
+
+            <TextBlock Margin="0,10,0,0">Adresse de facturation :</TextBlock>
             <TextBlock Margin="0,3,0,0" FontSize="6">Numéro et nom de rue :</TextBlock>
             <DockPanel>
                 <TextBox x:Name="numero_rue" Width="30" Margin="0,4,5,0"/>
