@@ -50,31 +50,31 @@ namespace FleuristeVirtuel_WPF
 
             if(nom_magasin.Text.Trim().Length == 0)
             {
-                MessageBox.Show("Le nom du magasin ne peut pas être vide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le nom du magasin ne peut pas être vide", "Donnée invalide");
                 return;
             }
 
             if(nom_rue.Text.Trim().Length == 0)
             {
-                MessageBox.Show("La rue de l'adresse du magasin ne peut être vide", "Donné invalide", MessageBoxButton.OK);
+                MessageWindow.Show("La rue de l'adresse du magasin ne peut être vide", "Donné invalide");
                 return;
             }
 
             if (ville.Text.Trim().Length == 0)
             {
-                MessageBox.Show("La ville de l'adresse du magasin ne peut être vide", "Donné invalide", MessageBoxButton.OK);
+                MessageWindow.Show("La ville de l'adresse du magasin ne peut être vide", "Donné invalide");
                 return;
             }
 
             if(!uint.TryParse(numero_rue.Text, out uint numero_rue_val))
             {
-                MessageBox.Show("Le numéro de rue de l'adresse n'est pas valide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le numéro de rue de l'adresse n'est pas valide", "Donnée invalide");
                 return;
             }
 
             if(!uint.TryParse(code_postal.Text, out uint code_postal_val))
             {
-                MessageBox.Show("Le code postal de l'adresse n'est pas valide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le code postal de l'adresse n'est pas valide", "Donnée invalide");
                 return;
             }
 

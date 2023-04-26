@@ -20,6 +20,7 @@ namespace FleuristeVirtuel_API.Types
     public abstract class DbRecord
     {
         private bool isUnique = false;
+        private bool isRemote = false;
 
         private readonly static Dictionary<Type, WeakList<DbRecord>> existingInstances = new();
 
@@ -43,7 +44,7 @@ namespace FleuristeVirtuel_API.Types
         {
             ThrowIfInvalidTableName(tableName, "insert");
 
-            if (isUnique)
+            if (isRemote)
                 return;
 
             Dictionary<string, object> parts = new();
@@ -95,16 +96,21 @@ namespace FleuristeVirtuel_API.Types
                 lastPrimaryKeyInfo.SetValue(this, newPrimaryKey);
             }
 
-            EnsureInstancesTypeExists(currentType);
-            existingInstances[currentType].Add(this);
-            isUnique = true;
+            if(isUnique == false)
+            {
+                EnsureInstancesTypeExists(currentType);
+                existingInstances[currentType].Add(this);
+                isUnique = true;
+            }
+
+            isRemote = true;
         }
 
         public void Update(string tableName, DbConnection connection)
         {
             ThrowIfInvalidTableName(tableName, "update");
 
-            if (!isUnique)
+            if (!isRemote)
                 throw new InvalidDataException("This instance doesn't not represent a record in the database! Was it fetched using the DbConnector or INSERTed?");
 
             Dictionary<string, object?> newValues = new();
@@ -153,7 +159,7 @@ namespace FleuristeVirtuel_API.Types
         {
             ThrowIfInvalidTableName(tableName, "delete");
 
-            if (!isUnique)
+            if (!isRemote)
                 throw new InvalidDataException("This instance doesn't not represent a record in the database! Was it fetched using the DbConnector or INSERTed?");
 
             Dictionary<string, object?> primaryValues = new();
@@ -309,6 +315,7 @@ namespace FleuristeVirtuel_API.Types
             }
 
             T child = CreateEmptyOrGetInstance<T>(primaryKeyValues);
+            child.isRemote = true;
             foreach (KeyValuePair<string, PropertyInfo> pair in allColumnsMembers)
             {
                 pair.Value.SetValue(child, Convert.ChangeType(reader[pair.Key], pair.Value.PropertyType));

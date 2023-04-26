@@ -20,60 +20,6 @@ using System.Windows.Shapes;
 
 namespace FleuristeVirtuel_WPF
 {
-    public class DbRecordConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            return value?.ToString() ?? "";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class PriceConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            return value?.ToString() + "€" ?? "0€";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            if (value is string str)
-            {
-                return str.ToLower();
-            }
-            else return value;
-        }
-    }
-
-    public class ProductCategoryConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            if(value is string str)
-            {
-                switch(str)
-                {
-                    case "fleur":
-                        return "Fleur";
-                    case "accessoire":
-                        return "Accessoire";
-                }
-            }
-            
-            return value?.ToString() ?? "null";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -151,6 +97,7 @@ namespace FleuristeVirtuel_WPF
 
             Magasin_Tab.Visibility = adminTabVisiblity;
             Produit_Tab.Visibility = adminTabVisiblity;
+            Stock_Tab.Visibility = adminTabVisiblity;
             Bouquet_Tab.Visibility = adminTabVisiblity;
             Client_Tab.Visibility = adminTabVisiblity;
             Commande_Tab.Visibility = adminTabVisiblity;
@@ -158,42 +105,124 @@ namespace FleuristeVirtuel_WPF
 
         public void Reload_Magasins()
         {
-            List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
-            foreach(var m in magasins) m.FetchForeignReferences(conn);
-            Magasin_DataGrid.ItemsSource = magasins;
+            try
+            {
+                List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
+                foreach (var m in magasins) m.FetchForeignReferences(conn);
+                Magasin_DataGrid.ItemsSource = magasins;
+            } catch(Exception e)
+            {
+                Magasin_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser la liste des magasins :\n" + e, "Impossible d'actualiser la liste");
+            }
         }
 
         public void Reload_Produits()
         {
-            List<TProduit> produits = conn.SelectMultipleRecords<TProduit>("SELECT * FROM produit");
-            Produit_DataGrid.ItemsSource = produits;
+            try
+            {
+                List<TProduit> produits = conn.SelectMultipleRecords<TProduit>("SELECT * FROM produit");
+                Produit_DataGrid.ItemsSource = produits;
+            } catch(Exception e)
+            {
+                Produit_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser la liste des produits :\n" + e, "Impossible d'actualiser la liste");
+            }
         }
 
         public void Reload_Clients()
         {
-            List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * from client");
-            foreach(var c in clients) c.FetchForeignReferences(conn);
-            Client_DataGrid.ItemsSource = clients;
+            try
+            {
+                List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * FROM client");
+                foreach (var c in clients) c.FetchForeignReferences(conn);
+                Client_DataGrid.ItemsSource = clients;
+            } catch(Exception e)
+            {
+                Client_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser la liste des clients :\n" + e, "Impossible d'actualiser la liste");
+            }
+        }
+
+        public void Prepare_Stocks()
+        {
+            try
+            {
+                List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
+                magasins.Insert(0, new() { nom_magasin = "Tous les magasins" });
+                Stocks_Selector_Magasin.ItemsSource = magasins;
+                Stocks_Selector_Magasin.SelectedIndex = 0;
+
+                List<TProduit> produits = conn.SelectMultipleRecords<TProduit>("SELECT * FROM produit");
+                produits.Insert(0, new() { nom_produit = "Tous les produits" });
+                Stocks_Selector_Produit.ItemsSource = produits;
+                Stocks_Selector_Produit.SelectedIndex = 0;
+            }
+            catch (Exception e)
+            {
+                Stocks_Selector_Magasin.ItemsSource = new TMagasin[] { new() { nom_magasin = "Tous les magasins" } };
+                Stocks_Selector_Produit.ItemsSource = new TProduit[] { new() { nom_produit = "Tous les produits" } };
+                MessageBox.Show("Impossible de remplir les filtres des stocks :\n" +e, "Impossible de filtrer les stocks");
+            }
+        }
+
+        public void Reload_Stocks()
+        {
+            try
+            {
+                string command = "SELECT * FROM stock";
+                List<DbParam> cmdParams = new();
+                bool hasWhere = false;
+
+                if (Stocks_Selector_Magasin.SelectedIndex > 0)
+                {
+                    command += " WHERE id_magasin = @magasin";
+                    hasWhere = true;
+                    cmdParams.Add(new("@magasin", ((TMagasin)Stocks_Selector_Magasin.SelectedValue).id_magasin));
+                }
+
+                if (Stocks_Selector_Produit.SelectedIndex > 0)
+                {
+                    if (!hasWhere) command += " WHERE ";
+                    else command = " AND ";
+                    command += "id_produit = @produit";
+                    cmdParams.Add(new("@produit", ((TProduit)Stocks_Selector_Produit.SelectedValue).id_produit));
+                }
+
+                List<TStock> stocks = conn.SelectMultipleRecords<TStock>(command, cmdParams.ToArray());
+                foreach (var s in stocks) s.FetchForeignReferences(conn);
+                Stock_DataGrid.ItemsSource = stocks;
+            } catch(Exception e)
+            {
+                Stock_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser les stocks :\n" + e, "Impossible d'actualiser la liste");
+            }
         }
 
         private void Magasin_Add_Click(object sender, RoutedEventArgs e)
         {
-            AddEditMagasin addEditWindow = new();
-            addEditWindow.ShowDialog();
-
-            TMagasin? new_magasin = addEditWindow.value;
-            if(addEditWindow.Submitted && new_magasin != null)
+            try
             {
-                TAdresse? new_adresse = new_magasin.adresse_localisation;
-                if(new_adresse != null)
+                AddEditMagasin addEditWindow = new();
+                addEditWindow.ShowDialog();
+
+                TMagasin? new_magasin = addEditWindow.value;
+                if (addEditWindow.Submitted && new_magasin != null)
                 {
-                    new_adresse.InsertInto("adresse", conn);
+                    TAdresse? new_adresse = new_magasin.adresse_localisation;
+                    if (new_adresse != null)
+                    {
+                        new_adresse.InsertInto("adresse", conn);
 
-                    new_magasin.id_adresse_localisation = new_adresse.id_adresse;
-                    new_magasin.InsertInto("magasin", conn);
+                        new_magasin.id_adresse_localisation = new_adresse.id_adresse;
+                        new_magasin.InsertInto("magasin", conn);
 
-                    Reload_Magasins();
+                        Reload_Magasins();
+                    }
                 }
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible d'ajouter un magasin :\n" + ex, "Impossible d'ajouter l'élément");
             }
         }
 
@@ -212,6 +241,10 @@ namespace FleuristeVirtuel_WPF
                     case "Produit_Tab":
                         Reload_Produits();
                         break;
+                    case "Stock_Tab":
+                        Prepare_Stocks();
+                        Reload_Stocks();
+                        break;
                     case "Client_Tab":
                         Reload_Clients();
                         break;
@@ -221,41 +254,54 @@ namespace FleuristeVirtuel_WPF
 
         private void Magasin_Reload_Click(object sender, RoutedEventArgs e)
         {
-            MessageWindow.Show("ceci est un long message\n\nsur plsueirus lignes\n\nhey\n\n\n\n\nplease continue", true, false, true);
             Reload_Magasins();
         }
         private void Magasin_Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
+            try
             {
-                TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
-
-                if(MessageBox.Show("Voulez-vous supprimer le magasin #" + id_magasin + " (" + magasin.nom_magasin + ")",
-                    "Suppression d'un magasin", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
                 {
-                    magasin.DeleteFrom("magasin", conn);
-                    magasin.adresse_localisation?.DeleteFrom("adresse", conn);
-                    Reload_Magasins();
+                    TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
+
+                    if (MessageWindow.Show("Voulez-vous supprimer le magasin #" + id_magasin + " (" + magasin.nom_magasin + ")",
+                        "Suppression d'un magasin", true, true) == MessageWindow.MessageResult.Continue)
+                    {
+                        magasin.DeleteFrom("magasin", conn);
+                        magasin.adresse_localisation?.DeleteFrom("adresse", conn);
+                        Reload_Magasins();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer le magasin :\n" + ex, "Impossible de supprimer l'élément");
             }
         }
 
         private void Magasin_Edit_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
+            try
             {
-                TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
-
-                AddEditMagasin addEditWindow = new(magasin);
-                addEditWindow.ShowDialog();
-
-                if (addEditWindow.Submitted)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
                 {
-                    magasin.adresse_localisation?.Update("adresse", conn);
-                    magasin.Update("magasin", conn);
+                    TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
 
-                    Reload_Magasins();
+                    AddEditMagasin addEditWindow = new(magasin);
+                    addEditWindow.ShowDialog();
+
+                    if (addEditWindow.Submitted)
+                    {
+                        magasin.adresse_localisation?.Update("adresse", conn);
+                        magasin.Update("magasin", conn);
+
+                        Reload_Magasins();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de modifier ce magasin :\n" + ex, "Impossible de modifier l'élément");
             }
         }
 
@@ -267,15 +313,21 @@ namespace FleuristeVirtuel_WPF
 
         private void Produit_Add_Click(object sender, RoutedEventArgs e)
         {
-            AddEditProduit addEditWindow = new();
-            addEditWindow.ShowDialog();
-
-            TProduit? new_produit = addEditWindow.value;
-            if (addEditWindow.Submitted && new_produit != null)
+            try
             {
-                new_produit.InsertInto("produit", conn);
+                AddEditProduit addEditWindow = new();
+                addEditWindow.ShowDialog();
 
-                Reload_Produits();
+                TProduit? new_produit = addEditWindow.value;
+                if (addEditWindow.Submitted && new_produit != null)
+                {
+                    new_produit.InsertInto("produit", conn);
+
+                    Reload_Produits();
+                }
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible d'ajouter un produit :\n" + ex, "Impossible d'ajouter l'élément");
             }
         }
 
@@ -286,35 +338,49 @@ namespace FleuristeVirtuel_WPF
 
         private void Produit_Edit_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
+            try
             {
-                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
-
-                AddEditProduit addEditWindow = new(produit);
-                addEditWindow.ShowDialog();
-
-                if (addEditWindow.Submitted)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
                 {
-                    produit.Update("produit", conn);
+                    TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
 
-                    Reload_Produits();
+                    AddEditProduit addEditWindow = new(produit);
+                    addEditWindow.ShowDialog();
+
+                    if (addEditWindow.Submitted)
+                    {
+                        produit.Update("produit", conn);
+
+                        Reload_Produits();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de modifier le produit :\n" + ex, "Impossible de modifier l'élément");
             }
         }
 
         private void Produit_Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
+            try
             {
-                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
-
-                if (MessageBox.Show("Voulez-vous supprimer le produit #" + id_produit + " (" + produit.nom_produit + ")\n\n" +
-                    "Cette action sera impossible si le produit est utilisé dans un bouquet ou une commande.",
-                    "Suppression d'un produit", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
                 {
-                    produit.DeleteFrom("produit", conn);
-                    Reload_Produits();
+                    TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
+
+                    if (MessageWindow.Show("Voulez-vous supprimer le produit #" + id_produit + " (" + produit.nom_produit + ")\n\n" +
+                        "Cette action sera impossible si le produit est utilisé dans un bouquet ou une commande.",
+                        "Suppression d'un produit", true, true) == MessageWindow.MessageResult.Continue)
+                    {
+                        produit.DeleteFrom("produit", conn);
+                        Reload_Produits();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer le produit :\n" + ex, "Impossible de supprimer l'élément");
             }
         }
 
@@ -335,42 +401,48 @@ namespace FleuristeVirtuel_WPF
 
         private void Login(string userEmail, string password)
         {
-            if (userEmail.Length == 0 || password.Length == 0) return;
-
-            foreach (var account in admin_accounts)
+            try
             {
-                if (account.Key == userEmail && account.Value.Key == password)
-                {
-                    accountStatus = LoggedInStatus.Admin;
-                    CanEdit = account.Value.Value;
-                    conn.Open(userEmail, password);
-                    break;
-                }
-            }
+                if (userEmail.Length == 0 || password.Length == 0) return;
 
-            if (accountStatus == LoggedInStatus.None)
-            {
-                conn.Open("root", "root");
-                int count = conn.SelectSingleCell<int>("SELECT COUNT(*) FROM client WHERE email_client = @email AND mot_de_passe = @password",
-                    0, new DbParam("@email", userEmail), new DbParam("@password", password));
-
-                if (count > 0)
+                foreach (var account in admin_accounts)
                 {
-                    accountStatus = LoggedInStatus.Client;
+                    if (account.Key == userEmail && account.Value.Key == password)
+                    {
+                        accountStatus = LoggedInStatus.Admin;
+                        CanEdit = account.Value.Value;
+                        conn.Open(userEmail, password);
+                        break;
+                    }
                 }
+
+                if (accountStatus == LoggedInStatus.None)
+                {
+                    conn.Open("root", "root");
+                    int count = conn.SelectSingleCell<int>("SELECT COUNT(*) FROM client WHERE email_client = @email AND mot_de_passe = @password",
+                        0, new DbParam("@email", userEmail), new DbParam("@password", password));
+
+                    if (count > 0)
+                    {
+                        accountStatus = LoggedInStatus.Client;
+                    }
+                    else
+                    {
+                        conn.DisposeCurrentConnection();
+                    }
+                }
+
+                if (accountStatus == LoggedInStatus.None)
+                    MessageWindow.Show("L'email/nom d'utilisateur et/ou le mot de passe ne correspondent pas !",
+                        "Informations invalides !");
                 else
                 {
-                    conn.DisposeCurrentConnection();
+                    currentUser = userEmail;
+                    UpdateViewFromAccountStatus();
                 }
-            }
-
-            if (accountStatus == LoggedInStatus.None)
-                MessageBox.Show("L'email/nom d'utilisateur et/ou le mot de passe ne correspondent pas !",
-                    "Informations invalide !", MessageBoxButton.OK);
-            else
+            } catch(Exception ex)
             {
-                currentUser = userEmail;
-                UpdateViewFromAccountStatus();
+                MessageWindow.Show("Une erreur est survenue lors de la connexion :\n" + ex, "Impossible de se connecter");
             }
         }
 
@@ -387,17 +459,23 @@ namespace FleuristeVirtuel_WPF
 
         private void Client_Add_Click(object sender, RoutedEventArgs e)
         {
-            AddEditClient addEditWindow = new();
-            addEditWindow.ShowDialog();
-
-            TClient? new_client = addEditWindow.value;
-            if (addEditWindow.Submitted && new_client != null && new_client.adresse_facturation != null)
+            try
             {
-                new_client.adresse_facturation.InsertInto("adresse", conn);
-                new_client.id_adresse = new_client.adresse_facturation.id_adresse;
-                new_client.InsertInto("client", conn);
+                AddEditClient addEditWindow = new();
+                addEditWindow.ShowDialog();
 
-                Reload_Clients();
+                TClient? new_client = addEditWindow.value;
+                if (addEditWindow.Submitted && new_client != null && new_client.adresse_facturation != null)
+                {
+                    new_client.adresse_facturation.InsertInto("adresse", conn);
+                    new_client.id_adresse = new_client.adresse_facturation.id_adresse;
+                    new_client.InsertInto("client", conn);
+
+                    Reload_Clients();
+                }
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible d'ajouter un client :\n" + ex, "Impossible d'ajouter l'élément");
             }
         }
 
@@ -408,38 +486,87 @@ namespace FleuristeVirtuel_WPF
 
         private void Client_Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
+            try
             {
-                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
-
-                if (MessageBox.Show("Voulez-vous supprimer le client #" + id_client + " (" + client.prenom_client + " " + client.nom_client + ")\n\n" +
-                    "Cette action sera impossible si le client a déjà passé une commande.",
-                    "Suppression d'un client", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
                 {
-                    client.DeleteFrom("client", conn);
-                    client.adresse_facturation?.DeleteFrom("adresse", conn);
-                    Reload_Clients();
+                    TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
+
+                    if (MessageWindow.Show("Voulez-vous supprimer le client #" + id_client + " (" + client.prenom_client + " " + client.nom_client + ")\n\n" +
+                        "Cette action sera impossible si le client a déjà passé une commande.",
+                        "Suppression d'un client", true, true, false) == MessageWindow.MessageResult.Continue)
+                    {
+                        client.DeleteFrom("client", conn);
+                        client.adresse_facturation?.DeleteFrom("adresse", conn);
+                        Reload_Clients();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer le client :\n" + ex, "Impossible de supprimer l'élément");
             }
         }
 
         private void Client_Edit_Click(object sender, RoutedEventArgs e)
         {
-            if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
+            try
             {
-                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
-
-                AddEditClient addEditWindow = new(client);
-                addEditWindow.ShowDialog();
-
-                if (addEditWindow.Submitted)
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
                 {
-                    client.Update("client", conn);
-                    client.adresse_facturation?.Update("adresse", conn);
+                    TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
 
-                    Reload_Clients();
+                    AddEditClient addEditWindow = new(client);
+                    addEditWindow.ShowDialog();
+
+                    if (addEditWindow.Submitted)
+                    {
+                        client.Update("client", conn);
+                        client.adresse_facturation?.Update("adresse", conn);
+
+                        Reload_Clients();
+                    }
                 }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer le client :\n" + ex, "Impossible de supprimer l'élément");
             }
+        }
+
+        private void Stock_Edit_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit)
+                && uint.TryParse(CustomDataClass.GetCustomDataBis(sender as UIElement), out uint id_magasin))
+                {
+                    TStock stock = DbRecord.CreateEmptyOrGetInstance<TStock>(id_produit, id_magasin);
+
+                    EditStock editWindow = new(stock);
+                    editWindow.ShowDialog();
+
+                    if (editWindow.Submitted)
+                    {
+                        stock.Update("stock", conn);
+                        Reload_Stocks();
+                    }
+                }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            } catch(Exception ex)
+            {
+                MessageWindow.Show("Impossible de modifier le stock :\n" + ex, "Impossible de modifier le stock");
+            }
+        }
+
+        private void Stock_Reload_Click(object sender, RoutedEventArgs e)
+        {
+            Reload_Stocks();
+        }
+
+        private void Stocks_Selector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Reload_Stocks();
         }
     }
 
@@ -447,8 +574,11 @@ namespace FleuristeVirtuel_WPF
     {
 
         // si jamais on fait une propriété de type int ou uint, il n'y aurait pas de conversion à faire dans les edit/delete
-        // mais on risque des problèmes si on se trompe dans le xaml
+        // mais on risque des problèmes si on se trompe dans le xaml, enfin le binding peut dire "invalid type"
         public static readonly DependencyProperty CustomDataProperty = DependencyProperty.RegisterAttached("CustomData",
+            typeof(string), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
+
+        public static readonly DependencyProperty CustomDataBisProperty = DependencyProperty.RegisterAttached("CustomDataBis",
             typeof(string), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
 
         public static string GetCustomData(UIElement? element)
@@ -462,6 +592,19 @@ namespace FleuristeVirtuel_WPF
             if (element == null)
                 throw new ArgumentNullException("element");
             element.SetValue(CustomDataProperty, value);
+        }
+
+        public static string GetCustomDataBis(UIElement? element)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            return (string)element.GetValue(CustomDataBisProperty);
+        }
+        public static void SetCustomDataBis(UIElement? element, string value)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            element.SetValue(CustomDataBisProperty, value);
         }
     }
 

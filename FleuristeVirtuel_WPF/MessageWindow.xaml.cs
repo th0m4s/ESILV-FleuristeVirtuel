@@ -21,11 +21,12 @@ namespace FleuristeVirtuel_WPF
     {
         MessageResult lastResult = MessageResult.Continue;
 
-        public MessageWindow(string message, bool canContinue = true, bool canCancel = false, bool canRetry = false)
+        public MessageWindow(string message, string title, bool canContinue = true, bool canCancel = false, bool canRetry = false)
         {
             InitializeComponent();
 
             MessageContent.Text = message;
+            Title = title;
 
             int count = 0;
 
@@ -56,9 +57,9 @@ namespace FleuristeVirtuel_WPF
             return lastResult;
         }
 
-        public static MessageResult Show(string message, bool canContinue = true, bool canCancel = false, bool canRetry = false)
+        public static MessageResult Show(string message, string title, bool canContinue = true, bool canCancel = false, bool canRetry = false)
         {
-            return new MessageWindow(message, canContinue, canCancel, canRetry).ShowMessage();
+            return new MessageWindow(message, title, canContinue, canCancel, canRetry).ShowMessage();
         }
 
         private void TopBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -92,6 +93,7 @@ namespace FleuristeVirtuel_WPF
         private void GUIWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ResizeMode = ResizeMode.NoResize;
+            SizeToContent = SizeToContent.WidthAndHeight;
         }
     }
 }

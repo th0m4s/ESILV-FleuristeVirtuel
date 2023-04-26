@@ -24,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="AddEditWindows\EditStock.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
     <Page Update="AddEditWindows\AddEditProduit.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>

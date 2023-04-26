@@ -9,9 +9,8 @@
         Loaded="GUIWindow_Loaded"
         Icon="resources/logo.ico"
         UseLayoutRounding="True"
-        SizeToContent="WidthAndHeight"
         Style="{StaticResource GUIWindowStyles}"
-        Title="FleuristeVirtuel" MinHeight="120" MinWidth="300">
+        Title="FleuristeVirtuel" MinHeight="80" MinWidth="300">
     <Grid>
         <TextBox HorizontalAlignment="Center" Height="Auto" MaxWidth="1200" Width="Auto" TextWrapping="Wrap" VerticalAlignment="Top"
                            Name="MessageContent" TextAlignment="Center" Margin="10,10,10,50" Background="Transparent"

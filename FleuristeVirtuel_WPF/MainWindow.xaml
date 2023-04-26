@@ -12,6 +12,8 @@
         <local:DbRecordConverter x:Key="DbRecordConverter" />
         <local:PriceConverter x:Key="PriceConverter" />
         <local:ProductCategoryConverter x:Key="ProductCategoryConverter" />
+        <local:ProduitNameConverter x:Key="ProduitNameConverter" />
+        <local:MagasinNameConverter x:Key="MagasinNameConverter" />
     </Window.Resources>
 
     <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
@@ -90,7 +92,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="0">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des magasins :</TextBlock>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
                         <Button x:Name="Magasin_Add" Click="Magasin_Add_Click" IsEnabled="{Binding CanEdit}">
@@ -162,7 +164,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="0">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des produits :</TextBlock>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
                         <Button x:Name="Produit_Add" Click="Produit_Add_Click" IsEnabled="{Binding CanEdit}">
@@ -222,7 +224,84 @@
                 </DataGrid>
             </Grid>
         </TabItem>
-        
+
+        <TabItem x:Name="Stock_Tab">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <fa:FontAwesome Icon="Solid_Box" Style="{StaticResource MainTabItemHeaderIcon}"/>
+                    <TextBlock Text="Stocks"/>
+                </StackPanel>
+            </TabItem.Header>
+            <Grid Style="{StaticResource MainTabGridStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Gestion des stocks :</TextBlock>
+                        <ComboBox Margin="10" x:Name="Stocks_Selector_Magasin" Width="140"
+                                  SelectionChanged="Stocks_Selector_SelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource MagasinNameConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox Margin="10" x:Name="Stocks_Selector_Produit" Width="140"
+                                  SelectionChanged="Stocks_Selector_SelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ProduitNameConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
+                        <Button x:Name="Stock_Reload" Click="Stock_Reload_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <DataGrid Grid.Row="1" x:Name="Stock_DataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          SelectedCellsChanged="DataGrid_SelectedCellsChanged">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#prod" Binding="{Binding id_produit}" Width="70" CanUserResize="False" />
+                        <DataGridTextColumn Header="Nom du produit" Binding="{Binding produit, Converter={StaticResource ProduitNameConverter}}" Width="*" />
+                        <DataGridTextColumn Header="#mag" Binding="{Binding id_magasin}" Width="70" CanUserResize="False" />
+                        <DataGridTextColumn Header="Nom du magasin" Binding="{Binding magasin, Converter={StaticResource MagasinNameConverter}}" Width="160" />
+                        <DataGridTextColumn Header="Quantité" Binding="{Binding quantite_stock}" Width="80" />
+                        <DataGridTemplateColumn Header="Actions" Width="70">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}" local:CustomDataClass.CustomDataBis="{Binding id_magasin}"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
+                                                x:Name="Stock_Edit" Click="Stock_Edit_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Modifier</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+
         <TabItem x:Name="Bouquet_Tab">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
@@ -247,7 +326,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="0">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des clients :</TextBlock>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
                         <Button x:Name="Client_Add" Click="Client_Add_Click" IsEnabled="{Binding CanEdit}">

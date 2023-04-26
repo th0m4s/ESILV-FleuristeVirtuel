@@ -49,13 +49,13 @@ namespace FleuristeVirtuel_WPF
 
             if(!float.TryParse(prix_produit.Text, out float parsedPrice) || parsedPrice < 0)
             {
-                MessageBox.Show("Le prix n'est pas un nombre positif valide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le prix n'est pas un nombre positif valide", "Donnée invalide");
                 return;
             }
 
             if(nom_produit.Text.Trim().Length == 0)
             {
-                MessageBox.Show("Le nom du produit ne peut pas être vide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le nom du produit ne peut pas être vide", "Donnée invalide");
                 return;
             }
 

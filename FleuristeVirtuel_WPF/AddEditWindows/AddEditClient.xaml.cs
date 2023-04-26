@@ -58,49 +58,49 @@ namespace FleuristeVirtuel_WPF
 
             if(nom_client.Text.Trim().Length == 0)
             {
-                MessageBox.Show("Le nom du client ne peut pas être vide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le nom du client ne peut pas être vide", "Donnée invalide");
                 return;
             }
 
             if (prenom_client.Text.Trim().Length == 0)
             {
-                MessageBox.Show("Le prénom du client ne peut pas être vide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le prénom du client ne peut pas être vide", "Donnée invalide");
                 return;
             }
 
             if (!email_client.Text.Contains("@"))
             {
-                MessageBox.Show("L'email du client doit contenir '@'", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("L'email du client doit contenir '@'", "Donnée invalide");
                 return;
             }
 
             if (carte_de_credit.Text.Trim().Length == 0)
             {
-                MessageBox.Show("La carte du crédit du client doit être renseignée'", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("La carte du crédit du client doit être renseignée'", "Donnée invalide");
                 return;
             }
 
             if (nom_rue.Text.Trim().Length == 0)
             {
-                MessageBox.Show("La rue de l'adresse du client ne peut être vide", "Donné invalide", MessageBoxButton.OK);
+                MessageWindow.Show("La rue de l'adresse du client ne peut être vide", "Donné invalide");
                 return;
             }
 
             if (ville.Text.Trim().Length == 0)
             {
-                MessageBox.Show("La ville de l'adresse du client ne peut être vide", "Donné invalide", MessageBoxButton.OK);
+                MessageWindow.Show("La ville de l'adresse du client ne peut être vide", "Donné invalide");
                 return;
             }
 
             if(!uint.TryParse(numero_rue.Text, out uint numero_rue_val))
             {
-                MessageBox.Show("Le numéro de rue de l'adresse n'est pas valide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le numéro de rue de l'adresse n'est pas valide", "Donnée invalide");
                 return;
             }
 
             if(!uint.TryParse(code_postal.Text, out uint code_postal_val))
             {
-                MessageBox.Show("Le code postal de l'adresse n'est pas valide", "Donnée invalide", MessageBoxButton.OK);
+                MessageWindow.Show("Le code postal de l'adresse n'est pas valide", "Donnée invalide");
                 return;
             }
 

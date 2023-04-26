@@ -20,5 +20,25 @@ namespace FleuristeVirtuel_API.Types
 
         [DbColumn]
         public string? categorie_produit { get; set; }
+
+        public new void InsertInto(string tableName, DbConnection connection, bool insertPrimaryKey = false)
+        {
+            base.InsertInto(tableName, connection, insertPrimaryKey);
+            RemplirMagasins(connection);
+        }
+
+        public void RemplirMagasins(DbConnection conn, List<TMagasin>? magasins = null)
+        {
+            if (magasins == null)
+                magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin WHERE magasin.id_magasin NOT IN " +
+                    "(SELECT s.id_magasin FROM stock AS s WHERE s.id_produit = @produit)", new DbParam("@produit", id_produit));
+
+            foreach (TMagasin magasin in magasins)
+            {
+                TStock stock = DbRecord.CreateEmptyOrGetInstance<TStock>(id_produit, magasin.id_magasin);
+                stock.quantite_stock = 0;
+                stock.InsertInto("stock", conn, true);
+            }
+        }
     }
 }
