@@ -49,15 +49,16 @@ CREATE TABLE bouquet (
     id_bouquet INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     nom_bouquet VARCHAR(255) NOT NULL,
     prix_bouquet FLOAT NOT NULL,
-    desc_bouquet TEXT NOT NULL
+    desc_bouquet TEXT NOT NULL,
+    categorie_bouquet VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE compose (
     id_bouquet INT UNSIGNED NOT NULL,
     id_produit INT UNSIGNED NOT NULL,
     quantite_compose INT UNSIGNED NOT NULL,
-    CONSTRAINT fk_compose_bouquet FOREIGN KEY (id_bouquet) REFERENCES bouquet(id_bouquet),
-    CONSTRAINT fk_compose_produit FOREIGN KEY (id_produit) REFERENCES produit(id_produit),
+    CONSTRAINT fk_compose_bouquet FOREIGN KEY (id_bouquet) REFERENCES bouquet(id_bouquet) ON DELETE CASCADE,
+    CONSTRAINT fk_compose_produit FOREIGN KEY (id_produit) REFERENCES produit(id_produit) ON DELETE CASCADE,
     PRIMARY KEY (id_bouquet, id_produit)
 );
 
@@ -71,6 +72,9 @@ CREATE TABLE commande (
     date_commande DATETIME NOT NULL,
     id_adresse INT UNSIGNED NOT NULL,
     id_client INT UNSIGNED NOT NULL,
+    prix_avant_reduc FLOAT NOT NULL,
+    # si le client choisit un bouquet standard, il paiera peut-être moins cher que tous les produits à l'unité
+	# donc on stocke le prix par commande (cela évite en plus de refaire la somme à chaque fois)
     pourc_reduc_prix INT UNSIGNED NOT NULL,
     CONSTRAINT fk_commande_magasin FOREIGN KEY (id_magasin) REFERENCES magasin(id_magasin),
     CONSTRAINT fk_commande_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse),

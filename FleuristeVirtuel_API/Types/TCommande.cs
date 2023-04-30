@@ -34,6 +34,9 @@ namespace FleuristeVirtuel_API.Types
         public string? statut { get; set; }
 
         [DbColumn]
+        public float? prix_avant_reduc { get; set; }
+
+        [DbColumn]
         public uint pourc_reduc_prix { get; set; }
 
         [DbColumn]

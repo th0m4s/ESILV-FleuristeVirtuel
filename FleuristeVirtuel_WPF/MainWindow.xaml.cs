@@ -144,6 +144,19 @@ namespace FleuristeVirtuel_WPF
             }
         }
 
+        public void Reload_Bouquets()
+        {
+            try
+            {
+                List<TBouquet> bouquets = conn.SelectMultipleRecords<TBouquet>("SELECT * FROM bouquet");
+                Bouquet_DataGrid.ItemsSource = bouquets;
+            } catch(Exception e)
+            {
+                Bouquet_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser la liste des bouquets standards :\n" + e, "Impossible d'actualiser la liste");
+            }
+        }
+
         public void Prepare_Stocks()
         {
             try
@@ -228,9 +241,9 @@ namespace FleuristeVirtuel_WPF
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Source is TabControl)
+            if (e.Source is TabControl tabControl)
             {
-                TabItem? tab = ((TabControl)e.Source).SelectedItem as TabItem;
+                TabItem? tab = tabControl.SelectedItem as TabItem;
                 if (tab == null) return;
 
                 switch(tab.Name)
@@ -244,6 +257,9 @@ namespace FleuristeVirtuel_WPF
                     case "Stock_Tab":
                         Prepare_Stocks();
                         Reload_Stocks();
+                        break;
+                    case "Bouquet_Tab":
+                        Reload_Bouquets();
                         break;
                     case "Client_Tab":
                         Reload_Clients();
@@ -567,6 +583,99 @@ namespace FleuristeVirtuel_WPF
         private void Stocks_Selector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Reload_Stocks();
+        }
+
+        private void Bouquet_Add_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                AddEditBouquet addEditWindow = new();
+                addEditWindow.ShowDialog();
+                
+                TBouquet? new_bouquet = addEditWindow.value;
+                if (addEditWindow.Submitted && new_bouquet != null)
+                {
+                    new_bouquet.InsertInto("bouquet", conn);
+
+                    Reload_Bouquets();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible d'ajouter un bouquet :\n" + ex, "Impossible d'ajouter l'élément");
+            }
+        }
+
+        private void Bouquet_Reload_Click(object sender, RoutedEventArgs e)
+        {
+            Reload_Bouquets();
+        }
+
+        private void Bouquet_Edit_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
+                {
+                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
+
+                    AddEditBouquet addEditWindow = new(bouquet);
+                    addEditWindow.ShowDialog();
+
+                    if (addEditWindow.Submitted)
+                    {
+                        bouquet.Update("bouquet", conn);
+
+                        Reload_Bouquets();
+                    }
+                }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible de modifier le bouquet standard :\n" + ex, "Impossible de modifier l'élément");
+            }
+        }
+
+        private void Bouquet_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
+                {
+                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
+
+                    if (MessageWindow.Show("Voulez-vous supprimer le bouquet #" + id_bouquet + " (" + bouquet.nom_bouquet + ") ?",
+                        "Suppression d'un bouquet standard", true, true, false) == MessageWindow.MessageResult.Continue)
+                    {
+                        bouquet.DeleteFrom("bouquet", conn);
+                        Reload_Bouquets();
+                    }
+                }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer le bouquet :\n" + ex, "Impossible de supprimer l'élément");
+            }
+        }
+
+        private void Bouquet_OpenCompose_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
+                {
+                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
+                    ComposeBouquetSublistWindow sublistWindow = new(bouquet, conn);
+                    sublistWindow.ShowDialog();
+                }
+                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible d'afficher les produits du bouquet standard :\n" + ex, "Impossible d'accéder à l'élément");
+            }
         }
     }
 

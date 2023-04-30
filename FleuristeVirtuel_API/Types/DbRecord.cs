@@ -197,6 +197,8 @@ namespace FleuristeVirtuel_API.Types
             int affected = command.ExecuteNonQuery();
             if (affected != 1)
                 throw new Exception($"Error while updating {tableName}, no row was affected!");
+
+            existingInstances[currentType].Remove(this);
         }
 
         public void FetchForeignReferences(DbConnection connection)
@@ -369,6 +371,41 @@ namespace FleuristeVirtuel_API.Types
             if (set != values.Length)
                 throw new FieldAccessException("Cannot access primary key because no PrimaryKeyAttribute was set and this method was not overriden!");
         }
+
+        // DOES NOT WORK!!!!
+        //public static bool operator ==(DbRecord? a, DbRecord? b)
+        //{
+        //    if (ReferenceEquals(a, b)) return true;
+        //    if (ReferenceEquals(a, null) || ReferenceEquals(b, null)) return false;
+
+        //    Type typeA = a.GetType();
+        //    Type typeB = b.GetType();
+
+        //    if (typeA != typeB) return false;
+
+        //    MethodInfo? mi = typeA.GetMethod("GetPrimaryKeyValues")?.MakeGenericMethod(typeA);
+        //    if (mi == null) return false;
+
+        //    return mi.Invoke(a, null) == mi.Invoke(b, null);
+        //}
+
+        //public static bool operator !=(DbRecord? a, DbRecord? b)
+        //{
+        //    return !(a == b);
+        //}
+
+        //public override int GetHashCode()
+        //{
+        //    Type type = GetType();
+        //    MethodInfo? mi = type.GetMethod("GetPrimaryKeyValues")?.MakeGenericMethod(type);
+
+        //    return ((object[]?)mi?.Invoke(this, null))?.GetHashCode() ?? base.GetHashCode();
+        //}
+
+        //public override bool Equals(object? other)
+        //{
+        //    return other is DbRecord rec && this == rec;
+        //}
     }
 
     [AttributeUsage(AttributeTargets.Property)]

@@ -1,0 +1,60 @@
+﻿<local:GUIWindow x:Class="FleuristeVirtuel_WPF.ComposeBouquetSublistWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FleuristeVirtuel_WPF"
+        mc:Ignorable="d"
+        AllowMaximize="False"
+        ResizeMode="NoResize"
+        Title="Composition du bouquet"
+        Style="{StaticResource GUIWindowStyles}"
+        Height="300" Width="350">
+    <Window.Resources>
+        <local:ProduitNameConverter x:Key="ProduitNameConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="bouquet_info"
+            Grid.Row="0" Grid.ColumnSpan="2"
+            Foreground="White" Margin="5">
+            Bouquet :
+        </TextBlock>
+        <ComboBox x:Name="produit_combobox" Grid.Row="1" Grid.Column="0" Margin="3">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource ProduitNameConverter}}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Grid.Row="1" Grid.Column="1" Margin="3" Padding="5,0"
+                x:Name="produit_add" Click="produit_add_Click">
+            Ajouter ce produit
+        </Button>
+        <TextBlock
+            Grid.Row="2" FontSize="10" Grid.ColumnSpan="2"
+            Foreground="White" Margin="3" TextWrapping="Wrap">
+            Pour supprimer un produit du bouquet, merci de mettre la quantité à 0.<LineBreak />
+            Pour modifier la quantité, merci de cliquer sur la case afin de remplacer la valeur puis d'appuyer sur Entrée pour valider : la sauvegarde est automatique.
+        </TextBlock>
+        <DataGrid Grid.Row="3" Grid.ColumnSpan="2" x:Name="Compose_DataGrid"
+                AutoGenerateColumns="False"
+                CellEditEnding="Compose_DataGrid_CellEditEnding"
+                CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#prod" Width="50" Binding="{Binding produit.id_produit}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Nom du produit" Width="*" Binding="{Binding produit.nom_produit}" IsReadOnly="True" />
+                <local:DataGridPositiveIntColumn Header="Quantité" Width="80" Binding="{Binding quantite_compose, Mode=TwoWay}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</local:GUIWindow>
