@@ -22,6 +22,9 @@ namespace FleuristeVirtuel_API.Types
         public string? email_client { get; set; }
 
         [DbColumn]
+        public string? telephone_client { get; set; }
+
+        [DbColumn]
         public string? mot_de_passe { get; set; }
 
         [DbColumn]

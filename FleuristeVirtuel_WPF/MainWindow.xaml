@@ -431,9 +431,10 @@
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="#ID" Binding="{Binding id_client}" Width="30" CanUserResize="False" />
-                        <DataGridTextColumn Header="Nom" Binding="{Binding nom_client}" Width="90" />
-                        <DataGridTextColumn Header="Prénom" Binding="{Binding prenom_client}" Width="90" />
-                        <DataGridTextColumn Header="Email" Binding="{Binding email_client}" Width="170" />
+                        <DataGridTextColumn Header="Nom" Binding="{Binding nom_client}" Width="75" />
+                        <DataGridTextColumn Header="Prénom" Binding="{Binding prenom_client}" Width="75" />
+                        <DataGridTextColumn Header="Email" Binding="{Binding email_client}" Width="160" />
+                        <DataGridTextColumn Header="Téléphone" Binding="{Binding telephone_client}" Width="75" />
                         <DataGridTextColumn Header="Adresse" Binding="{Binding adresse_facturation, Converter={StaticResource DbRecordConverter}}" Width="*" />
                         <DataGridTemplateColumn Header="Actions" Width="150" CanUserResize="False">
                             <DataGridTemplateColumn.CellTemplate>

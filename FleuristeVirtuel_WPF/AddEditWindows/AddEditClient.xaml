@@ -8,7 +8,7 @@
         ResizeMode="NoResize"
         AllowMaximize="False"
         Style="{StaticResource GUIWindowStyles}"
-        Title="" Height="345" Width="300">
+        Title="" Height="395" Width="300">
     <Grid Style="{StaticResource AddEditWindowStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,8">
@@ -30,6 +30,9 @@
             
             <TextBlock>Email du client :</TextBlock>
             <TextBox Margin="0,3,0,8" x:Name="email_client" />
+
+            <TextBlock>Numéro de téléphone du client :</TextBlock>
+            <TextBox Margin="0,3,0,8" x:Name="telephone_client" />
 
             <TextBlock>Carte de crédit :</TextBlock>
             <TextBox Margin="0,3,0,8" x:Name="carte_de_credit" />

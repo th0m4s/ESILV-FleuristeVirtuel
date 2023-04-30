@@ -36,6 +36,7 @@ namespace FleuristeVirtuel_WPF
                 nom_client.Text = value.nom_client;
                 prenom_client.Text = value.prenom_client;
                 email_client.Text = value.email_client;
+                telephone_client.Text = value.telephone_client;
                 carte_de_credit.Text = value.carte_de_credit;
                 nom_client.Text = value.nom_client;
                 mot_de_passe_help.Visibility = Visibility.Visible;
@@ -71,6 +72,12 @@ namespace FleuristeVirtuel_WPF
             if (!email_client.Text.Contains("@"))
             {
                 MessageWindow.Show("L'email du client doit contenir '@'", "Donnée invalide");
+                return;
+            }
+
+            if (telephone_client.Text.Trim().Length == 0)
+            {
+                MessageWindow.Show("Le numéro de téléphone du client ne peut pas être vide", "Donnée invalide");
                 return;
             }
 
@@ -116,6 +123,7 @@ namespace FleuristeVirtuel_WPF
             value.nom_client = nom_client.Text;
             value.prenom_client = prenom_client.Text;
             value.email_client = email_client.Text;
+            value.telephone_client = telephone_client.Text;
             value.carte_de_credit = carte_de_credit.Text;
 
             string newPass = mot_de_passe.Password.Trim();

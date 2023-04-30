@@ -15,6 +15,7 @@ CREATE TABLE client (
     nom_client VARCHAR(255) NOT NULL,
     prenom_client VARCHAR(255) NOT NULL,
     email_client VARCHAR(255) NOT NULL,
+    telephone_client VARCHAR(20) NOT NULL,
     mot_de_passe VARCHAR(255) NOT NULL,
     carte_de_credit VARCHAR(255) NOT NULL,
     id_adresse INT UNSIGNED NOT NULL,
@@ -73,8 +74,8 @@ CREATE TABLE commande (
     id_adresse INT UNSIGNED NOT NULL,
     id_client INT UNSIGNED NOT NULL,
     prix_avant_reduc FLOAT NOT NULL,
-    # si le client choisit un bouquet standard, il paiera peut-être moins cher que tous les produits à l'unité
-	# donc on stocke le prix par commande (cela évite en plus de refaire la somme à chaque fois)
+    # si le client choisit un bouquet standard, il paiera peut-ï¿½tre moins cher que tous les produits ï¿½ l'unitï¿½
+	# donc on stocke le prix par commande (cela ï¿½vite en plus de refaire la somme ï¿½ chaque fois)
     pourc_reduc_prix INT UNSIGNED NOT NULL,
     CONSTRAINT fk_commande_magasin FOREIGN KEY (id_magasin) REFERENCES magasin(id_magasin),
     CONSTRAINT fk_commande_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse),
