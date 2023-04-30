@@ -56,13 +56,13 @@ namespace FleuristeVirtuel_WPF
 
             if(nom_rue.Text.Trim().Length == 0)
             {
-                MessageWindow.Show("La rue de l'adresse du magasin ne peut être vide", "Donné invalide");
+                MessageWindow.Show("La rue de l'adresse du magasin ne peut être vide", "Donnée invalide");
                 return;
             }
 
             if (ville.Text.Trim().Length == 0)
             {
-                MessageWindow.Show("La ville de l'adresse du magasin ne peut être vide", "Donné invalide");
+                MessageWindow.Show("La ville de l'adresse du magasin ne peut être vide", "Donnée invalide");
                 return;
             }
 
