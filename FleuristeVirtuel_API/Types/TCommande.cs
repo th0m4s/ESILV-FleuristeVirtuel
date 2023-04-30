@@ -28,7 +28,7 @@ namespace FleuristeVirtuel_API.Types
         public DateTime? date_commande { get; set; }
 
         [DbColumn]
-        public DateTime? date_livraison_voulue { get; set; }
+        public DateTime? date_livraison_souhaitee { get; set; }
 
         [DbColumn]
         public string? statut { get; set; }

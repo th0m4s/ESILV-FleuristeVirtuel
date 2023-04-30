@@ -71,6 +71,7 @@ CREATE TABLE commande (
     id_magasin INT UNSIGNED NOT NULL,
     prix_maximum FLOAT NOT NULL,
     date_commande DATETIME NOT NULL,
+    date_livraison_souhaitee DATETIME NOT NULL,
     id_adresse INT UNSIGNED NOT NULL,
     id_client INT UNSIGNED NOT NULL,
     prix_avant_reduc FLOAT NOT NULL,
