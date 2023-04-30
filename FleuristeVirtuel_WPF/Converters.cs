@@ -88,7 +88,7 @@ namespace FleuristeVirtuel_WPF
                 }
             }
 
-            return value?.ToString() ?? "null";
+            return value?.ToString().ToLower() ?? "null";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)

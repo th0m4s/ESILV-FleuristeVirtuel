@@ -19,9 +19,6 @@ namespace FleuristeVirtuel_API.Types
         [DbColumn]
         public uint quantite_contient { get; set; }
 
-        [DbColumn("prix_item_commande")]
-        public float prix_unit { get; set; }
-
 
         [ForeignReference("commande", "id_commande", "id_commande")]
         public TCommande? commande { get; set; }
