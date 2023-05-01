@@ -276,19 +276,16 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
-                {
-                    TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
+                uint id_magasin = CustomDataClass.GetPrimaryKey0(sender as UIElement);
+                TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
 
-                    if (MessageWindow.Show("Voulez-vous supprimer le magasin #" + id_magasin + " (" + magasin.nom_magasin + ")",
-                        "Suppression d'un magasin", true, true) == MessageWindow.MessageResult.Continue)
-                    {
-                        magasin.DeleteFrom("magasin", conn);
-                        magasin.adresse_localisation?.DeleteFrom("adresse", conn);
-                        Reload_Magasins();
-                    }
+                if (MessageWindow.Show("Voulez-vous supprimer le magasin #" + id_magasin + " (" + magasin.nom_magasin + ")",
+                    "Suppression d'un magasin", true, true) == MessageWindow.MessageResult.Continue)
+                {
+                    magasin.DeleteFrom("magasin", conn);
+                    magasin.adresse_localisation?.DeleteFrom("adresse", conn);
+                    Reload_Magasins();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de supprimer le magasin :\n" + ex, "Impossible de supprimer l'élément");
@@ -299,22 +296,18 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_magasin))
+                TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+
+                AddEditMagasin addEditWindow = new(magasin);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
                 {
-                    TMagasin magasin = DbRecord.CreateEmptyOrGetInstance<TMagasin>(id_magasin);
+                    magasin.adresse_localisation?.Update("adresse", conn);
+                    magasin.Update("magasin", conn);
 
-                    AddEditMagasin addEditWindow = new(magasin);
-                    addEditWindow.ShowDialog();
-
-                    if (addEditWindow.Submitted)
-                    {
-                        magasin.adresse_localisation?.Update("adresse", conn);
-                        magasin.Update("magasin", conn);
-
-                        Reload_Magasins();
-                    }
+                    Reload_Magasins();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de modifier ce magasin :\n" + ex, "Impossible de modifier l'élément");
@@ -356,21 +349,17 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
+                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+
+                AddEditProduit addEditWindow = new(produit);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
                 {
-                    TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
+                    produit.Update("produit", conn);
 
-                    AddEditProduit addEditWindow = new(produit);
-                    addEditWindow.ShowDialog();
-
-                    if (addEditWindow.Submitted)
-                    {
-                        produit.Update("produit", conn);
-
-                        Reload_Produits();
-                    }
+                    Reload_Produits();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de modifier le produit :\n" + ex, "Impossible de modifier l'élément");
@@ -381,19 +370,16 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit))
-                {
-                    TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
+                uint id_produit = CustomDataClass.GetPrimaryKey0(sender as UIElement);
+                TProduit produit = DbRecord.CreateEmptyOrGetInstance<TProduit>(id_produit);
 
-                    if (MessageWindow.Show("Voulez-vous supprimer le produit #" + id_produit + " (" + produit.nom_produit + ")\n\n" +
-                        "Cette action sera impossible si le produit est utilisé dans un bouquet ou une commande.",
-                        "Suppression d'un produit", true, true) == MessageWindow.MessageResult.Continue)
-                    {
-                        produit.DeleteFrom("produit", conn);
-                        Reload_Produits();
-                    }
+                if (MessageWindow.Show("Voulez-vous supprimer le produit #" + id_produit + " (" + produit.nom_produit + ")\n\n" +
+                    "Cette action sera impossible si le produit est utilisé dans un bouquet ou une commande.",
+                    "Suppression d'un produit", true, true) == MessageWindow.MessageResult.Continue)
+                {
+                    produit.DeleteFrom("produit", conn);
+                    Reload_Produits();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de supprimer le produit :\n" + ex, "Impossible de supprimer l'élément");
@@ -504,20 +490,17 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
-                {
-                    TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
+                uint id_client = CustomDataClass.GetPrimaryKey0(sender as UIElement);
+                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
 
-                    if (MessageWindow.Show("Voulez-vous supprimer le client #" + id_client + " (" + client.prenom_client + " " + client.nom_client + ")\n\n" +
-                        "Cette action sera impossible si le client a déjà passé une commande.",
-                        "Suppression d'un client", true, true, false) == MessageWindow.MessageResult.Continue)
-                    {
-                        client.DeleteFrom("client", conn);
-                        client.adresse_facturation?.DeleteFrom("adresse", conn);
-                        Reload_Clients();
-                    }
+                if (MessageWindow.Show("Voulez-vous supprimer le client #" + id_client + " (" + client.prenom_client + " " + client.nom_client + ")\n\n" +
+                    "Cette action sera impossible si le client a déjà passé une commande.",
+                    "Suppression d'un client", true, true, false) == MessageWindow.MessageResult.Continue)
+                {
+                    client.DeleteFrom("client", conn);
+                    client.adresse_facturation?.DeleteFrom("adresse", conn);
+                    Reload_Clients();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de supprimer le client :\n" + ex, "Impossible de supprimer l'élément");
@@ -528,22 +511,18 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_client))
+                TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+
+                AddEditClient addEditWindow = new(client);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
                 {
-                    TClient client = DbRecord.CreateEmptyOrGetInstance<TClient>(id_client);
+                    client.Update("client", conn);
+                    client.adresse_facturation?.Update("adresse", conn);
 
-                    AddEditClient addEditWindow = new(client);
-                    addEditWindow.ShowDialog();
-
-                    if (addEditWindow.Submitted)
-                    {
-                        client.Update("client", conn);
-                        client.adresse_facturation?.Update("adresse", conn);
-
-                        Reload_Clients();
-                    }
+                    Reload_Clients();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de supprimer le client :\n" + ex, "Impossible de supprimer l'élément");
@@ -554,21 +533,17 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_produit)
-                && uint.TryParse(CustomDataClass.GetCustomDataBis(sender as UIElement), out uint id_magasin))
+                TStock stock = DbRecord.CreateEmptyOrGetInstance<TStock>(CustomDataClass.GetPrimaryKey0(sender as UIElement),
+                    CustomDataClass.GetPrimaryKey1(sender as UIElement));
+
+                EditStock editWindow = new(stock);
+                editWindow.ShowDialog();
+
+                if (editWindow.Submitted)
                 {
-                    TStock stock = DbRecord.CreateEmptyOrGetInstance<TStock>(id_produit, id_magasin);
-
-                    EditStock editWindow = new(stock);
-                    editWindow.ShowDialog();
-
-                    if (editWindow.Submitted)
-                    {
-                        stock.Update("stock", conn);
-                        Reload_Stocks();
-                    }
+                    stock.Update("stock", conn);
+                    Reload_Stocks();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             } catch(Exception ex)
             {
                 MessageWindow.Show("Impossible de modifier le stock :\n" + ex, "Impossible de modifier le stock");
@@ -615,21 +590,17 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
+                TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+
+                AddEditBouquet addEditWindow = new(bouquet);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
                 {
-                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
+                    bouquet.Update("bouquet", conn);
 
-                    AddEditBouquet addEditWindow = new(bouquet);
-                    addEditWindow.ShowDialog();
-
-                    if (addEditWindow.Submitted)
-                    {
-                        bouquet.Update("bouquet", conn);
-
-                        Reload_Bouquets();
-                    }
+                    Reload_Bouquets();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             }
             catch (Exception ex)
             {
@@ -641,18 +612,15 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
-                {
-                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
+                uint id_bouquet = CustomDataClass.GetPrimaryKey0(sender as UIElement);
+                TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
 
-                    if (MessageWindow.Show("Voulez-vous supprimer le bouquet #" + id_bouquet + " (" + bouquet.nom_bouquet + ") ?",
-                        "Suppression d'un bouquet standard", true, true, false) == MessageWindow.MessageResult.Continue)
-                    {
-                        bouquet.DeleteFrom("bouquet", conn);
-                        Reload_Bouquets();
-                    }
+                if (MessageWindow.Show("Voulez-vous supprimer le bouquet #" + id_bouquet + " (" + bouquet.nom_bouquet + ") ?",
+                    "Suppression d'un bouquet standard", true, true, false) == MessageWindow.MessageResult.Continue)
+                {
+                    bouquet.DeleteFrom("bouquet", conn);
+                    Reload_Bouquets();
                 }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
             }
             catch (Exception ex)
             {
@@ -664,13 +632,9 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                if (uint.TryParse(CustomDataClass.GetCustomData(sender as UIElement), out uint id_bouquet))
-                {
-                    TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(id_bouquet);
-                    ComposeBouquetSublistWindow sublistWindow = new(bouquet, conn);
-                    sublistWindow.ShowDialog();
-                }
-                else throw new ValueUnavailableException("Cannot fetch item from datagrid!");
+                TBouquet bouquet = DbRecord.CreateEmptyOrGetInstance<TBouquet>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+                ComposeBouquetSublistWindow sublistWindow = new(bouquet, conn);
+                sublistWindow.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -682,38 +646,36 @@ namespace FleuristeVirtuel_WPF
     public static class CustomDataClass
     {
 
-        // si jamais on fait une propriété de type int ou uint, il n'y aurait pas de conversion à faire dans les edit/delete
-        // mais on risque des problèmes si on se trompe dans le xaml, enfin le binding peut dire "invalid type"
-        public static readonly DependencyProperty CustomDataProperty = DependencyProperty.RegisterAttached("CustomData",
-            typeof(string), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty PrimaryKey0_property = DependencyProperty.RegisterAttached("PrimaryKey0",
+            typeof(uint), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
 
-        public static readonly DependencyProperty CustomDataBisProperty = DependencyProperty.RegisterAttached("CustomDataBis",
-            typeof(string), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty PrimaryKey1_property = DependencyProperty.RegisterAttached("PrimaryKey1",
+            typeof(uint), typeof(CustomDataClass), new FrameworkPropertyMetadata(null));
 
-        public static string GetCustomData(UIElement? element)
+        public static uint GetPrimaryKey0(UIElement? element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return (string)element.GetValue(CustomDataProperty);
+            return (uint)element.GetValue(PrimaryKey0_property);
         }
-        public static void SetCustomData(UIElement? element, string value)
+        public static void SetPrimaryKey0(UIElement? element, uint value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(CustomDataProperty, value);
+            element.SetValue(PrimaryKey0_property, value);
         }
 
-        public static string GetCustomDataBis(UIElement? element)
+        public static uint GetPrimaryKey1(UIElement? element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return (string)element.GetValue(CustomDataBisProperty);
+            return (uint)element.GetValue(PrimaryKey1_property);
         }
-        public static void SetCustomDataBis(UIElement? element, string value)
+        public static void SetPrimaryKey1(UIElement? element, uint value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(CustomDataBisProperty, value);
+            element.SetValue(PrimaryKey1_property, value);
         }
     }
 

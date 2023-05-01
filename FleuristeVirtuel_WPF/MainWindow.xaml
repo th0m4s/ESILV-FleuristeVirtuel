@@ -127,7 +127,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button local:CustomDataClass.CustomData="{Binding id_magasin}"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_magasin}"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Magasin_Edit" Click="Magasin_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -136,7 +136,7 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button local:CustomDataClass.CustomData="{Binding id_magasin}" Margin="3,0,0,0"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_magasin}" Margin="3,0,0,0"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Magasin_Delete" Click="Magasin_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -200,7 +200,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_produit}"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Produit_Edit" Click="Produit_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -209,7 +209,7 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}" Margin="3,0,0,0"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_produit}" Margin="3,0,0,0"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Produit_Delete" Click="Produit_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -286,7 +286,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button local:CustomDataClass.CustomData="{Binding id_produit}" local:CustomDataClass.CustomDataBis="{Binding id_magasin}"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_produit}" local:CustomDataClass.PrimaryKey1="{Binding id_magasin}"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Stock_Edit" Click="Stock_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -357,7 +357,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button local:CustomDataClass.CustomData="{Binding id_bouquet}"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_bouquet}"
                                                 x:Name="Bouquet_OpenCompose" Click="Bouquet_OpenCompose_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <fa:FontAwesome Icon="Solid_List" Style="{StaticResource DataActionIcon}" />
@@ -365,7 +365,7 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button local:CustomDataClass.CustomData="{Binding id_bouquet}" Margin="3,0,0,0"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_bouquet}" Margin="3,0,0,0"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Bouquet_Edit" Click="Bouquet_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -374,7 +374,7 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button local:CustomDataClass.CustomData="{Binding id_bouquet}" Margin="3,0,0,0"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_bouquet}" Margin="3,0,0,0"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Bouquet_Delete" Click="Bouquet_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -440,7 +440,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button local:CustomDataClass.CustomData="{Binding id_client}"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_client}"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Client_Edit" Click="Client_Edit_Click">
                                             <StackPanel Orientation="Horizontal">
@@ -449,7 +449,7 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button local:CustomDataClass.CustomData="{Binding id_client}" Margin="3,0,0,0"
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_client}" Margin="3,0,0,0"
                                                 IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
                                                 x:Name="Client_Delete" Click="Client_Delete_Click">
                                             <StackPanel Orientation="Horizontal">
