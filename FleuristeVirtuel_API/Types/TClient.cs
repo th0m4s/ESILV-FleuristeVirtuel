@@ -38,7 +38,7 @@ namespace FleuristeVirtuel_API.Types
 
         public override string ToString()
         {
-            return $"{nom_client} {prenom_client}";
+            return $"{nom_client} {prenom_client} (#{id_client})";
         }
 
         public string Describe()

@@ -59,5 +59,22 @@ namespace FleuristeVirtuel_API.Utils
             item.DeleteFrom(tableName, connection);
             liste.Remove(item);
         }
+
+        public static object? ChangeNullableType(object value, Type conversionType)
+        {
+            if (conversionType == null)
+                throw new ArgumentNullException("conversionType");
+
+            if (conversionType.IsGenericType &&
+              conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            {
+                if (value == null)
+                    return null;
+
+                conversionType = Nullable.GetUnderlyingType(conversionType) ?? throw new Exception("Invalid conversionType!");
+            }
+
+            return Convert.ChangeType(value, conversionType);
+        }
     }
 }

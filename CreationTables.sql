@@ -69,14 +69,14 @@ CREATE TABLE commande (
     message_accompagnement TEXT NOT NULL,
     commentaire_commande TEXT NOT NULL,
     id_magasin INT UNSIGNED NOT NULL,
-    prix_maximum FLOAT NOT NULL,
+    prix_maximum FLOAT NULL,
     date_commande DATETIME NOT NULL,
     date_livraison_souhaitee DATETIME NOT NULL,
     id_adresse INT UNSIGNED NOT NULL,
     id_client INT UNSIGNED NOT NULL,
     prix_avant_reduc FLOAT NOT NULL,
-    # si le client choisit un bouquet standard, il paiera peut-�tre moins cher que tous les produits � l'unit�
-	# donc on stocke le prix par commande (cela �vite en plus de refaire la somme � chaque fois)
+    # si le client choisit un bouquet standard, il paiera peut-�tre moins cher que tous les produits à l'unité
+	# donc on stocke le prix par commande (cela évite en plus de refaire la somme à chaque fois)
     pourc_reduc_prix INT UNSIGNED NOT NULL,
     CONSTRAINT fk_commande_magasin FOREIGN KEY (id_magasin) REFERENCES magasin(id_magasin),
     CONSTRAINT fk_commande_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse),
@@ -87,8 +87,8 @@ CREATE TABLE contient (
     id_commande INT UNSIGNED NOT NULL,
     id_produit INT UNSIGNED NOT NULL,
     quantite_contient INT UNSIGNED NOT NULL,
-    CONSTRAINT fk_contient_commande FOREIGN KEY (id_commande) REFERENCES commande(id_commande),
-    CONSTRAINT fk_contient_produit FOREIGN KEY (id_produit) REFERENCES produit(id_produit),
+    CONSTRAINT fk_contient_commande FOREIGN KEY (id_commande) REFERENCES commande(id_commande) ON DELETE CASCADE,
+    CONSTRAINT fk_contient_produit FOREIGN KEY (id_produit) REFERENCES produit(id_produit) ON DELETE CASCADE,
     PRIMARY KEY (id_commande, id_produit)
 );
 

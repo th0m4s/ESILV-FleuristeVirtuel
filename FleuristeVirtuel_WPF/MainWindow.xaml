@@ -15,6 +15,9 @@
         <local:ProduitNameConverter x:Key="ProduitNameConverter" />
         <local:MagasinNameConverter x:Key="MagasinNameConverter" />
         <local:SingleLineConverter x:Key="SingleLineConverter" />
+        <local:CommandePriceConverter x:Key="CommandePriceConverter" />
+        <local:CommandeStatutConverter x:Key="CommandeStatutConverter" />
+        <local:DateConverter x:Key="DateConverter" />
     </Window.Resources>
 
     <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
@@ -474,7 +477,86 @@
                 </StackPanel>
             </TabItem.Header>
             <Grid Style="{StaticResource MainTabGridStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Liste des commandes :</TextBlock>
+                    <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
+                        <Button x:Name="Commande_Add" Click="Commande_Add_Click" IsEnabled="{Binding CanEdit}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_Plus" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Ajouter</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="Commande_Reload" Click="Commande_Reload_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
+                <DataGrid Grid.Row="1" x:Name="Commande_DataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          SelectedCellsChanged="DataGrid_SelectedCellsChanged">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding id_commande}" Width="15" CanUserResize="False" />
+                        <DataGridTemplateColumn Header="Statut" Width="42">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding statut}" ToolTip="{Binding statut, Converter={StaticResource CommandeStatutConverter}}" TextTrimming="CharacterEllipsis" Margin="3,0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Magasin" Binding="{Binding magasin, Converter={StaticResource DbRecordConverter}}" Width="*" />
+                        <DataGridTextColumn Header="Prix" Binding="{Binding {}, Converter={StaticResource CommandePriceConverter}}" Width="110" />
+                        <DataGridTextColumn Header="Prix max." Binding="{Binding prix_maximum, Converter={StaticResource PriceConverter}}" Width="60" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding date_commande, Converter={StaticResource DateConverter}}" Width="70" />
+                        <DataGridTextColumn Header="Livraison voulue" Binding="{Binding date_livraison_souhaitee, Converter={StaticResource DateConverter}}" Width="95" />
+                        <DataGridTextColumn Header="Client" Binding="{Binding client, Converter={StaticResource DbRecordConverter}}" Width="120" />
+                        <DataGridTemplateColumn Header="Actions" Width="190" CanUserResize="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_commande}"
+                                                x:Name="Commande_OpenContient" Click="Commande_OpenContient_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_List" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Produits</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_commande}" Margin="3,0,0,0"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
+                                                x:Name="Commande_Edit" Click="Commande_Edit_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_PenToSquare" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Modif.</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button local:CustomDataClass.PrimaryKey0="{Binding id_commande}" Margin="3,0,0,0"
+                                                IsEnabled="{Binding CanEdit, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GUIWindow}}"
+                                                x:Name="Commande_Delete" Click="Commande_Delete_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <fa:FontAwesome Icon="Solid_Trash" Style="{StaticResource DataActionIcon}" />
+                                                <TextBlock>Suppr.</TextBlock>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </TabItem>
     </TabControl>

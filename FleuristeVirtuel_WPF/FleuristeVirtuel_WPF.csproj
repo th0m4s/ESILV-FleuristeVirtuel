@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MainWindow.xaml~RF5f7e2a.TMP" />
     <None Remove="Resources\logo.ico" />
   </ItemGroup>
 

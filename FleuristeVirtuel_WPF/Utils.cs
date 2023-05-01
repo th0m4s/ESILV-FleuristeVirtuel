@@ -28,7 +28,7 @@ namespace FleuristeVirtuel_WPF
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
         {
-            return value?.ToString() + "€" ?? "0€";
+            return value == null ? "N/A" : value.ToString() + "€" ?? "0€";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
@@ -107,6 +107,66 @@ namespace FleuristeVirtuel_WPF
             {
                 return str.Replace("\n", " ").Replace("\r", "");
             }
+            else return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if (value is DateTime date)
+            {
+                return date.ToShortDateString();
+            }
+            else return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CommandePriceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if (value is TCommande commande)
+            {
+                if (commande.pourc_reduc_prix == 0)
+                    return commande.prix_avant_reduc + "€";
+                else return $"{commande.prix_avant_reduc * (1 - commande.pourc_reduc_prix / 100f)}€" +
+                        $" (-{commande.pourc_reduc_prix}% de {commande.prix_avant_reduc}€)";
+            }
+            else return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CommandeStatutConverter : IValueConverter
+    {
+        public static Dictionary<string, string> STATUTS = new() {
+            { "VINV", "Vérification de l'inventaire requise" },
+            { "CC", "Commande complète (à préparer)" },
+            { "CPAV", "Commande personnalisée à vérifier" },
+            { "CAL", "Commande à livrer (préparée)" },
+            { "CL", "Commande livrée" }
+        };
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if (value is string str)
+                return STATUTS.GetValueOrDefault(str, str);
             else return value;
         }
 

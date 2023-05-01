@@ -212,6 +212,21 @@ namespace FleuristeVirtuel_WPF
             }
         }
 
+        public void Reload_Commandes()
+        {
+            try
+            {
+                List<TCommande> commandes = conn.SelectMultipleRecords<TCommande>("SELECT * FROM commande");
+                foreach(var c in commandes) c.FetchForeignReferences(conn);
+                Commande_DataGrid.ItemsSource = commandes;
+            }
+            catch (Exception e)
+            {
+                Commande_DataGrid.ItemsSource = null;
+                MessageWindow.Show("Impossible d'actualiser la liste des commandes :\n" + e, "Impossible d'actualiser la liste");
+            }
+        }
+
         private void Magasin_Add_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -263,6 +278,9 @@ namespace FleuristeVirtuel_WPF
                         break;
                     case "Client_Tab":
                         Reload_Clients();
+                        break;
+                    case "Commande_Tab":
+                        Reload_Commandes();
                         break;
                 }
             }
@@ -640,6 +658,46 @@ namespace FleuristeVirtuel_WPF
             {
                 MessageWindow.Show("Impossible d'afficher les produits du bouquet standard :\n" + ex, "Impossible d'accéder à l'élément");
             }
+        }
+
+        private void Commande_Add_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Commande_Reload_Click(object sender, RoutedEventArgs e)
+        {
+            Reload_Commandes();
+        }
+
+        private void Commande_Edit_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Commande_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                uint id_commande = CustomDataClass.GetPrimaryKey0(sender as UIElement);
+                TCommande commande = DbRecord.CreateEmptyOrGetInstance<TCommande>(id_commande);
+
+                if (MessageWindow.Show("Voulez-vous supprimer la commande #" + id_commande + " ?",
+                    "Suppression d'une commande", true, true, false) == MessageWindow.MessageResult.Continue)
+                {
+                    commande.DeleteFrom("commande", conn);
+                    Reload_Commandes();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible de supprimer la commande :\n" + ex, "Impossible de supprimer l'élément");
+            }
+        }
+
+        private void Commande_OpenContient_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

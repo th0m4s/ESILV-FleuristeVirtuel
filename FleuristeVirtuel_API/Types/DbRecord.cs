@@ -320,7 +320,10 @@ namespace FleuristeVirtuel_API.Types
             child.isRemote = true;
             foreach (KeyValuePair<string, PropertyInfo> pair in allColumnsMembers)
             {
-                pair.Value.SetValue(child, Convert.ChangeType(reader[pair.Key], pair.Value.PropertyType));
+                if (reader[pair.Key] is DBNull)
+                    pair.Value.SetValue(child, null);
+                else
+                    pair.Value.SetValue(child, CodeExtensions.ChangeNullableType(reader[pair.Key], pair.Value.PropertyType));
             }
 
             return child;
