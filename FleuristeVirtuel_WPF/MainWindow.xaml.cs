@@ -699,6 +699,41 @@ namespace FleuristeVirtuel_WPF
         {
 
         }
+
+        private void OpenExport_Click(object sender, RoutedEventArgs e)
+        {
+            if(sender is Button button)
+            {
+                string name = button.Name;
+                if(name.StartsWith("OpenExport_"))
+                {
+                    switch(name.Substring(11))
+                    {
+                        case "Magasin":
+                            ExportDataWindow.Open<TMagasin>(Magasin_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        case "Produit":
+                            ExportDataWindow.Open<TProduit>(Produit_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        case "Stock":
+                            ExportDataWindow.Open<TStock>(Stock_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        case "Bouquet":
+                            ExportDataWindow.Open<TBouquet>(Bouquet_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        case "Client":
+                            ExportDataWindow.Open<TClient>(Client_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        case "Commande":
+                            ExportDataWindow.Open<TCommande>(Commande_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            break;
+                        default:
+                            MessageBox.Show("Type de données à exporter invalide !");
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     public static class CustomDataClass

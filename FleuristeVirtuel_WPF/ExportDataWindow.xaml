@@ -1,0 +1,37 @@
+﻿<local:GUIWindow x:Class="FleuristeVirtuel_WPF.ExportDataWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FleuristeVirtuel_WPF"
+        mc:Ignorable="d"
+        AllowMaximize="False"
+        ResizeMode="NoResize"
+        Title="Exportation de données..."
+        Style="{StaticResource GUIWindowStyles}"
+        Height="215" Width="280">
+    <Grid Margin="5">
+        <StackPanel>
+            <TextBlock
+            FontSize="10"
+            Foreground="White" Margin="3" TextWrapping="Wrap">
+                Pour exporter une liste filtrée (comme demandé dans le sujet avec les commandes ayant commandé dans le dernier mois ou n'ayant pas commandé depuis 6 mois), merci de choisir le menu Exporter depuis l'onglet Statistiques.
+                <LineBreak /><LineBreak />Depuis cette fenêtre, toutes les données présentées sur l'écran précédent seront exportées.
+            </TextBlock>
+            <TextBlock Foreground="White" Margin="0,10,0,5">Type de fichier :</TextBlock>
+            <ComboBox x:Name="FileType_ComboBox">
+                <ComboBoxItem Content="XML" />
+                <ComboBoxItem Content="JSON" />
+            </ComboBox>
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="CancelExport_Button" Grid.Column="0" Click="CancelExport_Button_Click">Annuler</Button>
+                <Button x:Name="ConfirmExport_Button" Grid.Column="2" Click="ConfirmExport_Button_Click">Exporter</Button>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</local:GUIWindow>

@@ -111,6 +111,12 @@
                                 <TextBlock>Recharger</TextBlock>
                             </StackPanel>
                         </Button>
+                        <Button x:Name="OpenExport_Magasin" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
 
@@ -181,6 +187,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="OpenExport_Produit" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -268,6 +280,12 @@
                                 <TextBlock>Recharger</TextBlock>
                             </StackPanel>
                         </Button>
+                        <Button x:Name="OpenExport_Stock" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
 
@@ -331,6 +349,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="OpenExport_Bouquet" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -421,6 +445,12 @@
                                 <TextBlock>Recharger</TextBlock>
                             </StackPanel>
                         </Button>
+                        <Button x:Name="OpenExport_Client" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
 
@@ -494,6 +524,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <fa:FontAwesome Icon="Solid_RotateRight" Style="{StaticResource MainTabItemHeaderIcon}" />
                                 <TextBlock>Recharger</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="OpenExport_Commande" Click="OpenExport_Click" Style="{StaticResource ExportButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:FontAwesome Icon="Solid_FileExport" Style="{StaticResource MainTabItemHeaderIcon}" />
+                                <TextBlock>Exporter...</TextBlock>
                             </StackPanel>
                         </Button>
                     </StackPanel>
