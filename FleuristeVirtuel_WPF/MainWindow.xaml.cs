@@ -710,22 +710,22 @@ namespace FleuristeVirtuel_WPF
                     switch(name.Substring(11))
                     {
                         case "Magasin":
-                            ExportDataWindow.Open<TMagasin>(Magasin_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TMagasin>(Magasin_DataGrid.ItemsSource);
                             break;
                         case "Produit":
-                            ExportDataWindow.Open<TProduit>(Produit_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TProduit>(Produit_DataGrid.ItemsSource);
                             break;
                         case "Stock":
-                            ExportDataWindow.Open<TStock>(Stock_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TStock>(Stock_DataGrid.ItemsSource);
                             break;
                         case "Bouquet":
-                            ExportDataWindow.Open<TBouquet>(Bouquet_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TBouquet>(Bouquet_DataGrid.ItemsSource);
                             break;
                         case "Client":
-                            ExportDataWindow.Open<TClient>(Client_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TClient>(Client_DataGrid.ItemsSource);
                             break;
                         case "Commande":
-                            ExportDataWindow.Open<TCommande>(Commande_DataGrid.ItemsSource.Cast<DbRecord>().ToList());
+                            ExportDataWindow.Open<TCommande>(Commande_DataGrid.ItemsSource);
                             break;
                         default:
                             MessageBox.Show("Type de données à exporter invalide !");

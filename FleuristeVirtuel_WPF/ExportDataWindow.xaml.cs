@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Reflection;
+using System.Collections;
 
 namespace FleuristeVirtuel_WPF
 {
@@ -33,9 +34,9 @@ namespace FleuristeVirtuel_WPF
             InitializeComponent();
         }
 
-        public static void Open<T>(List<DbRecord> data) where T : DbRecord
+        public static void Open<T>(IEnumerable data) where T : DbRecord
         {
-            ExportDataWindow window = new(data, typeof(T));
+            ExportDataWindow window = new(data.Cast<DbRecord>().ToList(), typeof(T));
             window.ShowDialog();
         }
 
