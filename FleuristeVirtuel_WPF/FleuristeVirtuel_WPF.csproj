@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="AddEditWindows\AddEditCommande.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
     <Page Update="AddEditWindows\AddEditBouquet.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

@@ -1,5 +1,6 @@
 ﻿using FleuristeVirtuel_API;
 using FleuristeVirtuel_API.Types;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -662,7 +663,28 @@ namespace FleuristeVirtuel_WPF
 
         private void Commande_Add_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin;");
+                List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * FROM client;");
 
+                AddEditCommande addEditWindow = new(magasins, clients);
+                addEditWindow.ShowDialog();
+
+                TCommande? new_commande = addEditWindow.value;
+                if (addEditWindow.Submitted && new_commande != null && new_commande.adresse_livraison != null)
+                {
+                    new_commande.adresse_livraison.InsertInto("adresse", conn);
+                    new_commande.id_adresse = new_commande.adresse_livraison.id_adresse;
+                    new_commande.InsertInto("commande", conn);
+
+                    Reload_Commandes();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible d'ajouter une commande :\n" + ex, "Impossible d'ajouter l'élément");
+            }
         }
 
         private void Commande_Reload_Click(object sender, RoutedEventArgs e)
@@ -672,11 +694,32 @@ namespace FleuristeVirtuel_WPF
 
         private void Commande_Edit_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                TCommande commande = DbRecord.CreateEmptyOrGetInstance<TCommande>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
 
+                List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin;");
+                List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * FROM client;");
+
+                AddEditCommande addEditWindow = new(magasins, clients, commande);
+                addEditWindow.ShowDialog();
+
+                if (addEditWindow.Submitted)
+                {
+                    commande.Update("commande", conn);
+
+                    Reload_Commandes();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible de modifier la commande :\n" + ex, "Impossible de modifier l'élément");
+
+            }
         }
 
         private void Commande_Delete_Click(object sender, RoutedEventArgs e)
-        {
+        {   
             try
             {
                 uint id_commande = CustomDataClass.GetPrimaryKey0(sender as UIElement);
@@ -686,6 +729,7 @@ namespace FleuristeVirtuel_WPF
                     "Suppression d'une commande", true, true, false) == MessageWindow.MessageResult.Continue)
                 {
                     commande.DeleteFrom("commande", conn);
+                    commande.adresse_livraison?.DeleteFrom("adresse", conn);
                     Reload_Commandes();
                 }
             }
