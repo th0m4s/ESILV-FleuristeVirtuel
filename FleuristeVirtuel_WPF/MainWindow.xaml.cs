@@ -91,6 +91,14 @@ namespace FleuristeVirtuel_WPF
                 {
                     index_current_account.Text = "Actuallement connecté en tant qu'administrateur : " + currentUser;
                     if (!CanEdit) index_current_account.Text += " (lecture seule)";
+
+                    var alerts = GetAllAlerts();
+                    if (alerts.Count > 0)
+                    {
+                        string pluriel = alerts.Count > 1 ? "s" : "";
+                        MessageWindow.Show($"Vous avez {alerts.Count} alerte{pluriel} de stock en cours.\n" +
+                            "Ouvrez l'onglet Stocks et cochez la case \"Alertes\" pour plus d'informations.", "Alerte de stock");
+                    }
                 }
             }
 
@@ -102,6 +110,12 @@ namespace FleuristeVirtuel_WPF
             Bouquet_Tab.Visibility = adminTabVisiblity;
             Client_Tab.Visibility = adminTabVisiblity;
             Commande_Tab.Visibility = adminTabVisiblity;
+        }
+
+        public List<TStock> GetAllAlerts()
+        {
+            return conn.SelectMultipleRecords<TStock>("SELECT * FROM stock WHERE quantite_stock < @stocks_threshold;",
+                new DbParam("@stocks_threshold", STOCKS_THRESHOLD));
         }
 
         public void Reload_Magasins()
@@ -158,6 +172,8 @@ namespace FleuristeVirtuel_WPF
             }
         }
 
+        public bool StocksAlertsOnly { get; set; }
+
         public void Prepare_Stocks()
         {
             try
@@ -171,6 +187,8 @@ namespace FleuristeVirtuel_WPF
                 produits.Insert(0, new() { nom_produit = "Tous les produits" });
                 Stocks_Selector_Produit.ItemsSource = produits;
                 Stocks_Selector_Produit.SelectedIndex = 0;
+
+                StocksAlertsOnly = false;
             }
             catch (Exception e)
             {
@@ -179,6 +197,8 @@ namespace FleuristeVirtuel_WPF
                 MessageBox.Show("Impossible de remplir les filtres des stocks :\n" +e, "Impossible de filtrer les stocks");
             }
         }
+
+        public const int STOCKS_THRESHOLD = 5;
 
         public void Reload_Stocks()
         {
@@ -198,9 +218,19 @@ namespace FleuristeVirtuel_WPF
                 if (Stocks_Selector_Produit.SelectedIndex > 0)
                 {
                     if (!hasWhere) command += " WHERE ";
-                    else command = " AND ";
+                    else command += " AND ";
+                    hasWhere = true;
                     command += "id_produit = @produit";
                     cmdParams.Add(new("@produit", ((TProduit)Stocks_Selector_Produit.SelectedValue).id_produit));
+                }
+
+                if(StocksAlertsOnly)
+                {
+                    if (!hasWhere) command += " WHERE ";
+                    else command += " AND ";
+                    hasWhere = true;
+                    command += "quantite_stock < @stocks_threshold";
+                    cmdParams.Add(new("@stocks_threshold", STOCKS_THRESHOLD));
                 }
 
                 List<TStock> stocks = conn.SelectMultipleRecords<TStock>(command, cmdParams.ToArray());
@@ -741,7 +771,17 @@ namespace FleuristeVirtuel_WPF
 
         private void Commande_OpenContient_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                TCommande commande = DbRecord.CreateEmptyOrGetInstance<TCommande>(CustomDataClass.GetPrimaryKey0(sender as UIElement));
+                ContientCommandeSublistWindow sublistWindow = new(commande, conn);
+                sublistWindow.ShowDialog();
+                Reload_Commandes();
+            }
+            catch (Exception ex)
+            {
+                MessageWindow.Show("Impossible d'afficher les produits de la commande :\n" + ex, "Impossible d'accéder à l'élément");
+            }
         }
 
         private void OpenExport_Click(object sender, RoutedEventArgs e)
@@ -777,6 +817,16 @@ namespace FleuristeVirtuel_WPF
                     }
                 }
             }
+        }
+
+        private void stocks_alerts_only_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void stocks_alerts_only_Unchecked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

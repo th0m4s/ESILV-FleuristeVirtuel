@@ -75,6 +75,23 @@ namespace FleuristeVirtuel_WPF
         }
     }
 
+    public class BouquetNameConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            if (value is TBouquet bouquet)
+            {
+                return bouquet.nom_bouquet ?? value;
+            }
+            else return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo cultureInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class ProductCategoryConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo cultureInfo)

@@ -256,7 +256,7 @@
                 <Grid Grid.Row="0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Gestion des stocks :</TextBlock>
-                        <ComboBox Margin="10" x:Name="Stocks_Selector_Magasin" Width="140"
+                        <ComboBox Margin="10" x:Name="Stocks_Selector_Magasin" Width="130"
                                   SelectionChanged="Stocks_Selector_SelectionChanged">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -264,7 +264,7 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                        <ComboBox Margin="10" x:Name="Stocks_Selector_Produit" Width="140"
+                        <ComboBox Margin="10" x:Name="Stocks_Selector_Produit" Width="130"
                                   SelectionChanged="Stocks_Selector_SelectionChanged">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -272,6 +272,8 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+                        <CheckBox Foreground="White" Margin="10,13,0,0" x:Name="stocks_alerts_only"
+                                  IsChecked="{Binding StocksAlertsOnly, Mode=TwoWay}" Click="Stock_Reload_Click">Alertes seulement</CheckBox>
                     </StackPanel>
                     <StackPanel Style="{StaticResource TabControlButtonsGroupStyle}">
                         <Button x:Name="Stock_Reload" Click="Stock_Reload_Click">
@@ -593,6 +595,25 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+            </Grid>
+        </TabItem>
+
+        <TabItem x:Name="Stats_Tab">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <fa:FontAwesome Icon="Solid_ScaleUnbalanced" Style="{StaticResource MainTabItemHeaderIcon}"/>
+                    <TextBlock Text="Statistiques"/>
+                </StackPanel>
+            </TabItem.Header>
+            <Grid Style="{StaticResource MainTabGridStyle}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Statistiques des ventes :</TextBlock>
+
+                </Grid>
             </Grid>
         </TabItem>
     </TabControl>
