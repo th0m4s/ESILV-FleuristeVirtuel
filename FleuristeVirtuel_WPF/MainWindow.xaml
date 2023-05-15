@@ -691,10 +691,11 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">Choix du magasin :</TextBlock>
-                    <ComboBox Width="200" Grid.Row="1" Grid.ColumnSpan="2"  HorizontalAlignment="Left" Margin="0,3,0,10">
+                    <ComboBox Width="200" Grid.Row="1" Grid.ColumnSpan="2"  HorizontalAlignment="Left" Margin="0,3,0,10" x:Name="cclient_magasin">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Converter={StaticResource MagasinNameConverter}}" />
@@ -703,21 +704,27 @@
                     </ComboBox>
 
                     <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2">Date de livraison souhaitée :</TextBlock>
-                    <DatePicker Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Width="200" HorizontalAlignment="Left" />
+                    <DatePicker Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Width="200" HorizontalAlignment="Left"
+                                x:Name="cclient_datelivraison" SelectedDateChanged="cclient_datelivraison_SelectedDateChanged" />
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4">Adresse : (numéro, rue, code postal et ville)</TextBlock>
-                    <TextBox Grid.Row="3" Grid.Column="0" Margin="0,3,5,0" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,3,5,0" />
-                    <TextBox Grid.Row="3" Grid.Column="2" Margin="0,3,5,0" />
-                    <TextBox Grid.Row="3" Grid.Column="3" Margin="0,3,0,0" />
+                    <TextBox Grid.Row="3" Grid.Column="0" Margin="0,3,5,0" x:Name="cclient_addr_numero" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,3,5,0" x:Name="cclient_addr_rue" />
+                    <TextBox Grid.Row="3" Grid.Column="2" Margin="0,3,5,0" x:Name="cclient_addr_cp" />
+                    <TextBox Grid.Row="3" Grid.Column="3" Margin="0,3,0,0" x:Name="cclient_addr_ville" />
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,3">Message d'accompagnement :</TextBlock>
-                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="0" Height="40" AcceptsReturn="True" TextWrapping="Wrap" Margin="0,0,5,0" />
+                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="0" Height="40"
+                             AcceptsReturn="True" TextWrapping="Wrap" Margin="0,0,5,0" x:Name="cclient_msg_accompagnement" />
 
                     <TextBlock Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,5,0,3">Commentaire sur la commande :</TextBlock>
-                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="2" Height="40" AcceptsReturn="True" TextWrapping="Wrap" />
+                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="2" Height="40"
+                             AcceptsReturn="True" TextWrapping="Wrap" x:Name="cclient_commentaire" />
 
-                    <TabControl Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" BorderThickness="0"
+                    <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" x:Name="cclient_fidelite"
+                               Margin="0,10,0,0">Votre niveau de fidélité actuel : Chargement...</TextBlock>
+
+                    <TabControl Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4" BorderThickness="0"
                                 Margin="0,15,0,0" Background="Transparent">
                         <TabItem Header="Commande d'un bouquet standard">
                             <StackPanel>
@@ -725,7 +732,7 @@
                                     Merci de choisir votre bouquet dans la liste :
                                 </TextBlock>
 
-                                <ComboBox Width="200" HorizontalAlignment="Left">
+                                <ComboBox Width="200" HorizontalAlignment="Left" x:Name="cclient_bouquet" SelectionChanged="cclient_bouquet_SelectionChanged">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Converter={StaticResource BouquetNameConverter}}"/>
@@ -733,7 +740,8 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
 
-                                <TextBlock Margin="0,10,0,20"  Foreground="White" Text="Vous n'avez pas encore choisi de bouquet !" TextAlignment="Center"/>
+                                <TextBlock Margin="0,10,0,20" Foreground="White" x:Name="cclient_bouquet_text"
+                                           Text="Vous n'avez pas encore choisi de bouquet !" TextAlignment="Center"/>
 
                                 <Button Height="30" x:Name="client_valider_commande_standard" Click="client_valider_commande_standard_Click">
                                     Valider la commande

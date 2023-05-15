@@ -24,7 +24,7 @@ namespace FleuristeVirtuel_WPF
 
         public bool Submitted { get; private set; }
 
-        public AddEditCommande(List<TMagasin> magasins, List<TClient> clients, List<TBouquet?> bouquets, TCommande? editValue = null)
+        public AddEditCommande(List<TMagasin> magasins, List<TClient> clients, List<TBouquet> bouquets, TCommande? editValue = null)
         {
             this.value = editValue;
             InitializeComponent();

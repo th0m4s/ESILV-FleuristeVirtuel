@@ -402,6 +402,10 @@ namespace FleuristeVirtuel_WPF
                     case "Stats_Tab":
                         Reload_Stats();
                         break;
+                    case "PasserCommande_Tab":
+                        RemplirComboCommandeClient();
+                        UpdateClientFidelite();
+                        break;
                 }
             }
         }
@@ -934,14 +938,190 @@ namespace FleuristeVirtuel_WPF
             ExportDataWindow.Export<TClient>(list, "json");
         }
 
+        uint reduc_actuelle = 0;
+
+        private TCommande? RecupBaseCommandeClient()
+        {
+            TMagasin? _magasin = (TMagasin)cclient_magasin.SelectedItem;
+            if (_magasin == null)
+            {
+                MessageWindow.Show("Merci de choisir un magasin dans la liste", "Donné invalide");
+                return null;
+            }
+
+            DateTime? _date = cclient_datelivraison.SelectedDate;
+            if(_date == null)
+            {
+                MessageWindow.Show("Merci de choisir une date de livraison", "Donné invalide");
+                return null;
+            }
+
+            if(!uint.TryParse(cclient_addr_numero.Text, out uint _numero))
+            {
+                MessageWindow.Show("Merci d'indiquer un numéro entier positif pour le numéro de rue", "Donné invalide");
+                return null;
+            }
+
+            string _rue = cclient_addr_rue.Text.Trim();
+            if(_rue.Length == 0)
+            {
+                MessageWindow.Show("Merci d'indiquer un nom de rue", "Donné invalide");
+                return null;
+            }
+
+            if (!uint.TryParse(cclient_addr_cp.Text, out uint _cp) || _cp >= 100_000)
+            {
+                MessageWindow.Show("Merci d'indiquer un code postal valide", "Donné invalide");
+                return null;
+            }
+
+            string _ville = cclient_addr_ville.Text.Trim();
+            if (_ville.Length == 0)
+            {
+                MessageWindow.Show("Merci d'indiquer une ville", "Donné invalide");
+                return null;
+            }
+
+            string _acc = cclient_msg_accompagnement.Text.Trim();
+            string _commentaire = cclient_commentaire.Text.Trim();
+
+            TAdresse addr = new()
+            {
+                numero_rue = _numero,
+                nom_rue = _rue,
+                code_postal = _cp,
+                ville = _ville
+            };
+
+            return new()
+            {
+                id_magasin = _magasin.id_magasin,
+                date_commande = DateTime.Today,
+                adresse_livraison = addr,
+                date_livraison_souhaitee = _date,
+                message_accompagnement = _acc,
+                commentaire_commande = _commentaire,
+                pourc_reduc_prix = reduc_actuelle,
+                id_client = conn.SelectSingleCell<uint>("SELECT id_client FROM client WHERE email_client = @email", 0, new DbParam("@email", currentUser))
+            };
+        }
+
         private void client_valider_commande_perso_Click(object sender, RoutedEventArgs e)
         {
-
+            TCommande? commande = RecupBaseCommandeClient();
+            if (commande == null) return;
         }
 
         private void client_valider_commande_standard_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                TCommande? commande = RecupBaseCommandeClient();
+                if (commande == null) return;
 
+                TBouquet? bouquet = (TBouquet)cclient_bouquet.SelectedItem;
+                if (bouquet == null)
+                {
+                    MessageWindow.Show("Merci de choisir un bouquet!", "Donnée invalide");
+                    return;
+                }
+
+                commande.id_bouquet_base = bouquet.id_bouquet;
+
+                if (commande.date_livraison_souhaitee < DateTime.Today.AddDays(3)) commande.statut = "VINV";
+                else commande.statut = "CC";
+
+                commande.adresse_livraison?.InsertInto("adresse", conn);
+                commande.prix_avant_reduc = bouquet.prix_bouquet;
+                commande.id_adresse = commande.adresse_livraison?.id_adresse ?? throw new Exception("Impossible de sauvegarder la commande!");
+                commande.InsertInto("commande", conn);
+
+                List<TCompose> composition = conn.SelectMultipleRecords<TCompose>("SELECT * FROM compose WHERE id_bouquet = @bouquet", new DbParam("@bouquet", bouquet.id_bouquet));
+                foreach(TCompose compositionItem in composition)
+                {
+                    TContient contient = DbRecord.CreateEmptyOrGetInstance<TContient>(commande.id_commande, compositionItem.id_produit);
+                    contient.quantite_contient = compositionItem.quantite_compose;
+                    contient.InsertInto("contient", conn, true);
+                }
+
+                CommandeValidee();
+            } catch(Exception er)
+            {
+                MessageWindow.Show("Impossible de passer la commande : " + er, "Erreur de commande");
+            }
+        }
+
+        private void RemplirComboCommandeClient()
+        {
+            cclient_magasin.ItemsSource = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
+            cclient_bouquet.ItemsSource = conn.SelectMultipleRecords<TBouquet>("SELECT * FROM bouquet");
+
+            cclient_datelivraison.DisplayDateStart = DateTime.Today;
+        }
+
+        private void UpdateClientFidelite()
+        {
+            uint userId = conn.SelectSingleCell<uint>("SELECT id_client FROM client WHERE email_client = @email", 0, new DbParam("@email", currentUser));
+            int lastMonthCount = conn.SelectSingleCell<int>("SELECT COUNT(*) FROM commande WHERE id_client = @client AND date_commande > CURDATE() - INTERVAL 1 MONTH;", 0, new DbParam("@client", userId));
+
+            if(lastMonthCount >= 5)
+            {
+                reduc_actuelle = 15;
+                setStat(cclient_fidelite, "Fidélité or (15% de réduction)");
+            } else if(lastMonthCount >= 1)
+            {
+                reduc_actuelle = 5;
+                setStat(cclient_fidelite, "Fidélité bronze (5% de réduction)");
+            } else
+            {
+                reduc_actuelle = 0;
+                setStat(cclient_fidelite, "Aucune, passez plus de commandes pour y arriver");
+            }
+        }
+
+        private void ClearClientCommandeForm()
+        {
+            cclient_magasin.SelectedItem = null;
+            cclient_datelivraison.SelectedDate = null;
+            cclient_addr_numero.Text = "";
+            cclient_addr_rue.Text = "";
+            cclient_addr_cp.Text = "";
+            cclient_addr_ville.Text = "";
+            cclient_msg_accompagnement.Text = "";
+            cclient_commentaire.Text = "";
+            cclient_bouquet.SelectedItem = null;
+
+            UpdateClientFidelite();
+        }
+
+        private void CommandeValidee()
+        {
+            ClearClientCommandeForm();
+            MessageWindow.Show("Votre commande a bien été enregistrée !\nMerci de votre confiance", "Commande validée");
+        }
+
+        private void cclient_datelivraison_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DateTime? selectedDate = cclient_datelivraison.SelectedDate;
+            if(selectedDate != null)
+            {
+                if(selectedDate < DateTime.Today.AddDays(3))
+                {
+                    MessageWindow.Show("Attention, nous ne pouvons pas garantir les livraisons à moins de 3j !", "Date de livraison");
+                }
+            }
+        }
+
+        private void cclient_bouquet_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TBouquet? bouquet = (TBouquet)cclient_bouquet.SelectedItem;
+            if(bouquet == null)
+            {
+                cclient_bouquet_text.Text = "Vous n'avez pas encore choisi de bouquet !";
+            } else
+            {
+                cclient_bouquet_text.Text = $"Bouquet choisi : {bouquet.nom_bouquet}           Prix : {bouquet.prix_bouquet} €";
+            }
         }
     }
 
