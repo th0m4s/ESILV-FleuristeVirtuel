@@ -68,7 +68,7 @@ namespace FleuristeVirtuel_WPF
             // we should use environment variables as this is not secure AT ALL
             // but we are required to use this username/password and our teachers might not change an environment
             // variable from MODE=dev to MODE=prod (for example)
-            Login("root", "root");
+            // Login("root", "root");
         }
 
         public bool IsLoggedIn()
@@ -106,7 +106,6 @@ namespace FleuristeVirtuel_WPF
             }
 
             Visibility adminTabVisiblity = accountStatus == LoggedInStatus.Admin ? Visibility.Visible : Visibility.Collapsed;
-
             Magasin_Tab.Visibility = adminTabVisiblity;
             Produit_Tab.Visibility = adminTabVisiblity;
             Stock_Tab.Visibility = adminTabVisiblity;
@@ -114,6 +113,9 @@ namespace FleuristeVirtuel_WPF
             Client_Tab.Visibility = adminTabVisiblity;
             Commande_Tab.Visibility = adminTabVisiblity;
             Stats_Tab.Visibility = adminTabVisiblity;
+
+            Visibility clientTabVisibility = accountStatus == LoggedInStatus.Client ? Visibility.Visible : Visibility.Collapsed;
+            PasserCommande_Tab.Visibility = clientTabVisibility;
         }
 
         public List<TStock> GetAllAlerts()
@@ -930,6 +932,16 @@ namespace FleuristeVirtuel_WPF
                 " AND commande.date_commande > CURDATE() - INTERVAL 6 MONTH WHERE commande.id_client IS NULL;");
 
             ExportDataWindow.Export<TClient>(list, "json");
+        }
+
+        private void client_valider_commande_perso_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void client_valider_commande_standard_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

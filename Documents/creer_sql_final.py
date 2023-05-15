@@ -188,7 +188,7 @@ with open("../BelleFleur.sql", "w", encoding="utf-8") as file:
                 file.write(",")
     file.write(";\n\n")
 
-    file.write("INSERT INTO bouquet (nom_bouquet, prix_bouquet, desc_bouquet, categorie_bouquet) VALUES")
+    file.write("INSERT INTO bouquet (nom_bouquet, prix_bouquet, categorie_bouquet, desc_bouquet) VALUES")
     for i in range(len(bouquets)):
         file.write(f"\n  (\"{bouquets[i][0]}\", {bouquets[i][1]}, \"{bouquets[i][2]}\", \"{bouquets[i][3]}\")")
         if i != len(bouquets) - 1:
