@@ -125,7 +125,7 @@ namespace FleuristeVirtuel_API.Utils
             xmlDocument.Save(fileName);
         }
 
-        public static object? ChangeNullableType(object value, Type conversionType)
+        public static object? ChangeNullableType(object? value, Type conversionType)
         {
             if (conversionType == null)
                 throw new ArgumentNullException("conversionType");

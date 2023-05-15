@@ -24,7 +24,7 @@ namespace FleuristeVirtuel_WPF
 
         public bool Submitted { get; private set; }
 
-        public AddEditCommande(List<TMagasin> magasins, List<TClient> clients, TCommande? editValue = null)
+        public AddEditCommande(List<TMagasin> magasins, List<TClient> clients, List<TBouquet?> bouquets, TCommande? editValue = null)
         {
             this.value = editValue;
             InitializeComponent();
@@ -32,6 +32,9 @@ namespace FleuristeVirtuel_WPF
             statut_commande.ItemsSource = CommandeStatutConverter.STATUTS.Keys;
             magasin.ItemsSource = magasins;
             client.ItemsSource = clients;
+
+            bouquets.Insert(0, new TBouquet() { nom_bouquet = "Aucun bouquet", id_bouquet = 0 });
+            bouquet_base.ItemsSource = bouquets;
 
             if(value != null)
             {
@@ -47,6 +50,15 @@ namespace FleuristeVirtuel_WPF
                 date_commande.SelectedDate = value.date_commande;
                 date_livraison_souhaitee.SelectedDate = value.date_livraison_souhaitee;
                 client.SelectedValue = value.client;
+
+                if(value.bouquet_base == null)
+                {
+                    bouquet_base.SelectedIndex = 0;
+                } else
+                {
+                    bouquet_base.SelectedValue = value.bouquet_base;
+                }
+
                 numero_rue.Text = "" + value.adresse_livraison?.numero_rue;
                 nom_rue.Text = value.adresse_livraison?.nom_rue;
                 code_postal.Text = "" + value.adresse_livraison?.code_postal;
@@ -163,6 +175,17 @@ namespace FleuristeVirtuel_WPF
             value.date_livraison_souhaitee = date_livraison_souhaitee.SelectedDate;
             value.client = (TClient)client.SelectedValue;
             value.id_client = value.client.id_client;
+            
+            if(bouquet_base.SelectedIndex > 0)
+            {
+                value.bouquet_base = (TBouquet)bouquet_base.SelectedValue;
+                value.id_bouquet_base = value.bouquet_base.id_bouquet;
+            } else
+            {
+                value.bouquet_base = null;
+                value.id_bouquet_base = null;
+            }
+
             value.adresse_livraison.numero_rue = parsed_numero_rue;
             value.adresse_livraison.nom_rue = nom_rue.Text;
             value.adresse_livraison.code_postal = parsed_code_postal;

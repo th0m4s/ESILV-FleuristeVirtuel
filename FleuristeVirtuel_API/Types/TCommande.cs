@@ -40,6 +40,9 @@ namespace FleuristeVirtuel_API.Types
         public uint pourc_reduc_prix { get; set; }
 
         [DbColumn]
+        public uint? id_bouquet_base { get; set; }
+
+        [DbColumn]
         public uint id_adresse { get; set; }
 
         [DbColumn]
@@ -53,6 +56,9 @@ namespace FleuristeVirtuel_API.Types
 
         [ForeignReference("client", "id_client", "id_client")]
         public TClient? client { get; set; }
+
+        [ForeignReference("bouquet", "id_bouquet", "id_bouquet_base")]
+        public TBouquet? bouquet_base { get; set; }
 
     }
 }

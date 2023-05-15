@@ -144,6 +144,8 @@ namespace FleuristeVirtuel_WPF
                         }
 
                         commande.prix_avant_reduc = bouquet.prix_bouquet;
+                        commande.id_bouquet_base = bouquet.id_bouquet;
+                        commande.bouquet_base = bouquet;
                         commande.Update("commande", conn);
 
                         price_input.Text = "" + bouquet.prix_bouquet;

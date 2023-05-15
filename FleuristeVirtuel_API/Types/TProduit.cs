@@ -40,5 +40,10 @@ namespace FleuristeVirtuel_API.Types
                 stock.InsertInto("stock", conn, true);
             }
         }
+
+        public override string ToString()
+        {
+            return $"{nom_produit} (#{id_produit})";
+        }
     }
 }

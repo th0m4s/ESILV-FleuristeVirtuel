@@ -1,4 +1,5 @@
 ﻿using FleuristeVirtuel_API.Types;
+using FleuristeVirtuel_API.Utils;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Reflection;
@@ -95,8 +96,12 @@ namespace FleuristeVirtuel_API
             {
                 reader.Read();
                 Type columnIndexType = nonNullableColumn.GetType();
-                if (columnIndexType == typeof(int)) return (T)Convert.ChangeType(reader[(int)nonNullableColumn], typeof(T));
-                else if (columnIndexType == typeof(string)) return (T)Convert.ChangeType(reader[(string)nonNullableColumn], typeof(T));
+                object? readObject = null;
+                if (columnIndexType == typeof(int)) readObject = reader[(int)nonNullableColumn];
+                else if (columnIndexType == typeof(string)) readObject = reader[(string)nonNullableColumn];
+
+                if(readObject is DBNull) readObject = null;
+                return (T?)CodeExtensions.ChangeNullableType(readObject, typeof(T));
             }
 
             return default;

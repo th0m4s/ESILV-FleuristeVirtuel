@@ -8,7 +8,7 @@
         ResizeMode="NoResize"
         AllowMaximize="False"
         Style="{StaticResource GUIWindowStyles}"
-        Title="" Height="695" Width="300">
+        Title="" Height="760" Width="300">
     <Window.Resources>
         <local:DbRecordConverter x:Key="DbRecordConverter" />
         <local:CommandeStatutConverter x:Key="CommandeStatutConverter" />
@@ -87,6 +87,16 @@
 
             <TextBlock Margin="0,6,0,3">Client :</TextBlock>
             <ComboBox Name="client">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource DbRecordConverter}}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <TextBlock Margin="0,6,0,0">Bouquet de base :</TextBlock>
+            <TextBlock Margin="0,3,0,3" FontSize="8">Uniquement à des fins statistiques, ne sert pas à calculer le prix ou les produits</TextBlock>
+            <ComboBox Name="bouquet_base">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Converter={StaticResource DbRecordConverter}}"/>

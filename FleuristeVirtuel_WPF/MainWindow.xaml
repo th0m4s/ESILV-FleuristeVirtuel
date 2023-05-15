@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:FleuristeVirtuel_WPF"
         mc:Ignorable="d"
         Icon="resources/logo.ico"
-        Title="FleuristeVirtuel - WPF GUI" MinHeight="450" MinWidth="800" Height="450" Width="800">
+        Title="FleuristeVirtuel - WPF GUI" MinHeight="450" MinWidth="860" Height="450" Width="860">
     <Window.Resources>
         <local:DbRecordConverter x:Key="DbRecordConverter" />
         <local:PriceConverter x:Key="PriceConverter" />
@@ -18,6 +18,7 @@
         <local:CommandePriceConverter x:Key="CommandePriceConverter" />
         <local:CommandeStatutConverter x:Key="CommandeStatutConverter" />
         <local:DateConverter x:Key="DateConverter" />
+        <local:MonthCountConverter x:Key="MonthCountConverter" />
     </Window.Resources>
 
     <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
@@ -559,7 +560,8 @@
                         <DataGridTextColumn Header="Prix max." Binding="{Binding prix_maximum, Converter={StaticResource PriceConverter}}" Width="60" />
                         <DataGridTextColumn Header="Date" Binding="{Binding date_commande, Converter={StaticResource DateConverter}}" Width="70" />
                         <DataGridTextColumn Header="Livraison voulue" Binding="{Binding date_livraison_souhaitee, Converter={StaticResource DateConverter}}" Width="95" />
-                        <DataGridTextColumn Header="Client" Binding="{Binding client, Converter={StaticResource DbRecordConverter}}" Width="120" />
+                        <DataGridTextColumn Header="Client" Binding="{Binding client, Converter={StaticResource DbRecordConverter}}" Width="115" />
+                        <DataGridTextColumn Header="Bouquet base" Binding="{Binding bouquet_base, Converter={StaticResource DbRecordConverter}}" Width="85" />
                         <DataGridTemplateColumn Header="Actions" Width="190" CanUserResize="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -612,8 +614,50 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <TextBlock FontWeight="Bold" FontSize="16" Margin="10">Statistiques des ventes :</TextBlock>
-
                 </Grid>
+                <StackPanel Grid.Row="1">
+                    <TextBlock Margin="5,0,0,0" FontWeight="Bold">Choisir une période :</TextBlock>
+                    <ComboBox Margin="5,3,0,0" Width="150" HorizontalAlignment="Left"
+                              x:Name="stats_period" SelectionChanged="stats_period_SelectionChanged">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource MonthCountConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    
+                    <TextBlock Margin="5,15,0,0" x:Name="stats_nb_commandes" Text="Nombre de commandes passées :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_total_ca" Text="Chiffre d'affaires total sur cette période :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_prix_moyen" Text="Prix moyen par commande :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_bouquet" Text="Bouquet le plus acheté :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_magasin_commandes" Text="Magasin avec le plus de commandes :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_magasin_ca" Text="Magasin avec le plus haut chiffre d'affaires :" />
+                    <TextBlock Margin="5,3,0,0" x:Name="stats_client" Text="Meilleur client :" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="stats_fleur_plus" Margin="5,3,0,0"  Text="Fleur la plus vendue :"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="stats_fleur_moins" Margin="5,3,0,0"  Text="Fleur la moins vendue :"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" x:Name="stats_acc_plus" Margin="5,3,0,0"  Text="Accessoire le plus vendu :"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="stats_acc_moins" Margin="5,3,0,0"  Text="Accessoire le moins vendu :"/>
+                    </Grid>
+
+                    <Button Margin="5,30,0,0" HorizontalAlignment="Left" Width="450"
+                            x:Name="stats_export_xml" Click="stats_export_xml_Click">
+                        Export XML des clients ayant effectués plusieurs commandes dans le dernier mois
+                    </Button>
+
+                    <Button Margin="5,5,0,0" HorizontalAlignment="Left" Width="450"
+                            x:Name="stats_export_json" Click="stats_export_json_Click">
+                        Export JSON des clients n'ayant pas commandé durant les 6 derniers mois
+                    </Button>
+                </StackPanel>
             </Grid>
         </TabItem>
     </TabControl>

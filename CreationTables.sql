@@ -78,9 +78,12 @@ CREATE TABLE commande (
     # si le client choisit un bouquet standard, il paiera peut-�tre moins cher que tous les produits à l'unité
 	# donc on stocke le prix par commande (cela évite en plus de refaire la somme à chaque fois)
     pourc_reduc_prix INT UNSIGNED NOT NULL,
-    CONSTRAINT fk_commande_magasin FOREIGN KEY (id_magasin) REFERENCES magasin(id_magasin),
-    CONSTRAINT fk_commande_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse),
-    CONSTRAINT fk_commande_client FOREIGN KEY (id_client) REFERENCES client(id_client)
+    id_bouquet_base INT UNSIGNED NULL,
+    # uniquement à des fins statistiques
+    CONSTRAINT fk_commande_magasin FOREIGN KEY (id_magasin) REFERENCES magasin(id_magasin) ON DELETE CASCADE,
+    CONSTRAINT fk_commande_adresse FOREIGN KEY (id_adresse) REFERENCES adresse(id_adresse) ON DELETE RESTRICT,
+    CONSTRAINT fk_commande_client FOREIGN KEY (id_client) REFERENCES client(id_client) ON DELETE CASCADE,
+    CONSTRAINT fk_commande_bouquet FOREIGN KEY (id_bouquet_base) REFERENCES bouquet(id_bouquet) ON DELETE SET NULL
 );
 
 CREATE TABLE contient (

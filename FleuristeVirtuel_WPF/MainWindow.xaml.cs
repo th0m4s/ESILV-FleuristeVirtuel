@@ -61,6 +61,9 @@ namespace FleuristeVirtuel_WPF
 
             conn = new();
             UpdateViewFromAccountStatus();
+
+            stats_period.ItemsSource = new List<int>() { 1, 3, 6, 12 };
+            stats_period.SelectedIndex = 0;
             
             // we should use environment variables as this is not secure AT ALL
             // but we are required to use this username/password and our teachers might not change an environment
@@ -70,7 +73,7 @@ namespace FleuristeVirtuel_WPF
 
         public bool IsLoggedIn()
         {
-            return conn != null;
+            return conn != null && conn.Connection?.State == System.Data.ConnectionState.Open;
         }
 
         public void UpdateViewFromAccountStatus()
@@ -110,12 +113,91 @@ namespace FleuristeVirtuel_WPF
             Bouquet_Tab.Visibility = adminTabVisiblity;
             Client_Tab.Visibility = adminTabVisiblity;
             Commande_Tab.Visibility = adminTabVisiblity;
+            Stats_Tab.Visibility = adminTabVisiblity;
         }
 
         public List<TStock> GetAllAlerts()
         {
             return conn.SelectMultipleRecords<TStock>("SELECT * FROM stock WHERE quantite_stock < @stocks_threshold;",
                 new DbParam("@stocks_threshold", STOCKS_THRESHOLD));
+        }
+
+        private void setStat(TextBlock element, string value)
+        {
+            element.Text = element.Text.Split(":")[0].Trim() + " : " + value;
+        }
+
+        private void setStatPlural(TextBlock element, int value, string text)
+        {
+            setStat(element, value == 1 ? ("1 " + text) : (value + " " + text + "s"));
+        }
+
+        public void Reload_Stats()
+        {
+            if (!IsLoggedIn()) return;
+
+            DbParam paramDuration = new DbParam("@duration", (int)stats_period.SelectedValue);
+
+            int nb_commandes = conn.SelectSingleCell<int>("SELECT COUNT(*) FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH;", 0, paramDuration);
+            setStatPlural(stats_nb_commandes, nb_commandes, "commande");
+
+            float? ca_total = conn.SelectSingleCell<float?>("SELECT SUM(prix_avant_reduc - (prix_avant_reduc * pourc_reduc_prix / 100)) FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH;", 0, paramDuration);
+            setStat(stats_total_ca, ca_total == null ? "N/A" : (ca_total + " €"));
+
+            float? prix_moyen_commande = conn.SelectSingleCell<float?>("SELECT AVG(prix_avant_reduc) FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH;", 0, paramDuration);
+            setStat(stats_prix_moyen, prix_moyen_commande == null ? "N/A" : (prix_moyen_commande + " €"));
+
+            uint? id_bouquet = conn.SelectSingleCell<uint?>("SELECT id_bouquet_base, COUNT(id_bouquet_base) AS cnt FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH" +
+                " GROUP BY id_bouquet_base ORDER BY cnt DESC LIMIT 1;", 0, paramDuration);
+            TBouquet? bouquet = id_bouquet != null && id_bouquet > 0 ? 
+                conn.SelectSingleRecord<TBouquet>("SELECT * FROM bouquet WHERE id_bouquet = @id_bouquet", new DbParam("@id_bouquet", id_bouquet)) : null;
+            setStat(stats_bouquet, bouquet?.ToString() ?? "N/A");
+
+            uint? id_magasin_commandes = conn.SelectSingleCell<uint?>("SELECT id_magasin, COUNT(id_magasin) AS cnt FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH" +
+                " GROUP BY id_magasin ORDER BY cnt DESC LIMIT 1;", 0, paramDuration);
+            TMagasin? magasin_commandes = id_magasin_commandes != null && id_magasin_commandes > 0 ?
+                conn.SelectSingleRecord<TMagasin>("SELECT * FROM magasin WHERE id_magasin = @id_magasin", new DbParam("@id_magasin", id_magasin_commandes)) : null;
+            setStat(stats_magasin_commandes, magasin_commandes?.ToString() ?? "N/A");
+
+            uint? id_magasin_ca = conn.SelectSingleCell<uint?>("SELECT id_magasin, SUM(prix_avant_reduc - (prix_avant_reduc * pourc_reduc_prix / 100)) AS prix_total FROM commande" +
+                " WHERE date_commande > CURDATE() - INTERVAL @duration MONTH GROUP BY id_magasin ORDER BY prix_total DESC LIMIT 1;", 0, paramDuration);
+            TMagasin? magasin_ca = id_magasin_ca != null && id_magasin_ca > 0 ?
+                conn.SelectSingleRecord<TMagasin>("SELECT * FROM magasin WHERE id_magasin = @id_magasin", new DbParam("@id_magasin", id_magasin_ca)) : null;
+            setStat(stats_magasin_ca, magasin_ca?.ToString() ?? "N/A");
+
+            uint? id_client = conn.SelectSingleCell<uint?>("SELECT id_client, SUM(prix_avant_reduc - (prix_avant_reduc * pourc_reduc_prix / 100)) AS prix_total FROM commande" +
+                " WHERE date_commande > CURDATE() - INTERVAL @duration MONTH GROUP BY id_client ORDER BY prix_total DESC LIMIT 1;", 0, paramDuration);
+            TClient? meilleur_client = id_client != null && id_client > 0 ?
+                conn.SelectSingleRecord<TClient>("SELECT * FROM client WHERE id_client = @id_client", new DbParam("@id_client", id_client)) : null;
+            setStat(stats_client, meilleur_client?.ToString() ?? "N/A");
+
+            uint? id_fleur_plus = conn.SelectSingleCell<uint?>("SELECT id_produit, SUM(quantite_contient) AS cnt FROM contient WHERE id_produit IN (SELECT id_produit FROM produit" +
+                " WHERE categorie_produit = 'fleur') AND id_commande IN (SELECT id_commande FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH)" +
+                " GROUP BY id_produit ORDER BY cnt DESC LIMIT 1;", 0, paramDuration);
+            TProduit? fleur_plus = id_fleur_plus != null && id_fleur_plus > 0 ?
+                conn.SelectSingleRecord<TProduit>("SELECT * FROM produit WHERE id_produit = @id_produit", new DbParam("@id_produit", id_fleur_plus)) : null;
+            setStat(stats_fleur_plus, fleur_plus?.ToString() ?? "N/A");
+
+            uint? id_fleur_moins = conn.SelectSingleCell<uint?>("SELECT id_produit, SUM(quantite_contient) AS cnt FROM contient WHERE id_produit IN (SELECT id_produit FROM produit" +
+                " WHERE categorie_produit = 'fleur') AND id_commande IN (SELECT id_commande FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH)" +
+                " GROUP BY id_produit ORDER BY cnt ASC LIMIT 1;", 0, paramDuration);
+            TProduit? fleur_moins = id_fleur_moins != null && id_fleur_moins > 0 ?
+                conn.SelectSingleRecord<TProduit>("SELECT * FROM produit WHERE id_produit = @id_produit", new DbParam("@id_produit", id_fleur_moins)) : null;
+            setStat(stats_fleur_moins, fleur_moins?.ToString() ?? "N/A");
+
+            uint? id_acc_plus = conn.SelectSingleCell<uint?>("SELECT id_produit, SUM(quantite_contient) AS cnt FROM contient WHERE id_produit IN (SELECT id_produit FROM produit" +
+                " WHERE categorie_produit = 'accessoire') AND id_commande IN (SELECT id_commande FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH)" +
+                " GROUP BY id_produit ORDER BY cnt DESC LIMIT 1;", 0, paramDuration);
+            TProduit? acc_plus = id_acc_plus != null && id_acc_plus > 0 ?
+                conn.SelectSingleRecord<TProduit>("SELECT * FROM produit WHERE id_produit = @id_produit", new DbParam("@id_produit", id_acc_plus)) : null;
+            setStat(stats_acc_plus, acc_plus?.ToString() ?? "N/A");
+
+            uint? id_acc_moins = conn.SelectSingleCell<uint?>("SELECT id_produit, SUM(quantite_contient) AS cnt FROM contient WHERE id_produit IN (SELECT id_produit FROM produit" +
+                " WHERE categorie_produit = 'accessoire') AND id_commande IN (SELECT id_commande FROM commande WHERE date_commande > CURDATE() - INTERVAL @duration MONTH)" +
+                " GROUP BY id_produit ORDER BY cnt ASC LIMIT 1;", 0, paramDuration);
+            TProduit? acc_moins = id_acc_moins != null && id_acc_moins > 0 ?
+                conn.SelectSingleRecord<TProduit>("SELECT * FROM produit WHERE id_produit = @id_produit", new DbParam("@id_produit", id_acc_moins)) : null;
+            setStat(stats_acc_moins, acc_moins?.ToString() ?? "N/A");
         }
 
         public void Reload_Magasins()
@@ -312,6 +394,9 @@ namespace FleuristeVirtuel_WPF
                         break;
                     case "Commande_Tab":
                         Reload_Commandes();
+                        break;
+                    case "Stats_Tab":
+                        Reload_Stats();
                         break;
                 }
             }
@@ -697,8 +782,9 @@ namespace FleuristeVirtuel_WPF
             {
                 List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin;");
                 List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * FROM client;");
+                List<TBouquet> bouquets = conn.SelectMultipleRecords<TBouquet>("SELECT * FROM bouquet;");
 
-                AddEditCommande addEditWindow = new(magasins, clients);
+                AddEditCommande addEditWindow = new(magasins, clients, bouquets);
                 addEditWindow.ShowDialog();
 
                 TCommande? new_commande = addEditWindow.value;
@@ -730,8 +816,9 @@ namespace FleuristeVirtuel_WPF
 
                 List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin;");
                 List<TClient> clients = conn.SelectMultipleRecords<TClient>("SELECT * FROM client;");
+                List<TBouquet> bouquets = conn.SelectMultipleRecords<TBouquet>("SELECT * FROM bouquet;");
 
-                AddEditCommande addEditWindow = new(magasins, clients, commande);
+                AddEditCommande addEditWindow = new(magasins, clients, bouquets, commande);
                 addEditWindow.ShowDialog();
 
                 if (addEditWindow.Submitted)
@@ -819,14 +906,26 @@ namespace FleuristeVirtuel_WPF
             }
         }
 
-        private void stocks_alerts_only_Checked(object sender, RoutedEventArgs e)
+        private void stats_period_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            Reload_Stats();
         }
 
-        private void stocks_alerts_only_Unchecked(object sender, RoutedEventArgs e)
+        private void stats_export_xml_Click(object sender, RoutedEventArgs e)
         {
+            List<TClient> list = conn.SelectMultipleRecords<TClient>("SELECT client.*, COUNT(id_commande) AS cnt FROM client" +
+                " JOIN commande ON commande.id_client = client.id_client WHERE date_commande > CURDATE() - INTERVAL 1 MONTH" +
+                " GROUP BY commande.id_client HAVING cnt > 1;");
 
+            ExportDataWindow.Export<TClient>(list, "xml");
+        }
+
+        private void stats_export_json_Click(object sender, RoutedEventArgs e)
+        {
+            List<TClient> list = conn.SelectMultipleRecords<TClient>("SELECT client.* FROM client LEFT JOIN commande ON client.id_client = commande.id_client" +
+                " AND commande.date_commande > CURDATE() - INTERVAL 6 MONTH WHERE commande.id_client IS NULL;");
+
+            ExportDataWindow.Export<TClient>(list, "json");
         }
     }
 

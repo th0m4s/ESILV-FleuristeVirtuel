@@ -10,7 +10,7 @@ namespace FleuristeVirtuel_API.Types
     {
         [PrimaryKey]
         [DbColumn]
-        public uint id_bouquet { get; private set; }
+        public uint id_bouquet { get; set; }
 
         [DbColumn]
         public string? nom_bouquet { get; set; }
@@ -23,5 +23,12 @@ namespace FleuristeVirtuel_API.Types
 
         [DbColumn]
         public string? categorie_bouquet { get; set; }
+
+        public override string ToString()
+        {
+            if (id_bouquet > 0)
+                return $"{nom_bouquet} (#{id_bouquet})";
+            else return $"{nom_bouquet}";
+        }
     }
 }

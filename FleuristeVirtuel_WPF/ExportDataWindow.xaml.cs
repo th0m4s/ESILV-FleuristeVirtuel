@@ -40,21 +40,23 @@ namespace FleuristeVirtuel_WPF
             window.ShowDialog();
         }
 
+        public static void Export<T>(IEnumerable data, string type) where T : DbRecord
+        {
+            ExportDataWindow window = new(data.Cast<DbRecord>().ToList(), typeof(T));
+            window.Export(type);
+        }
+
         private void CancelExport_Button_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private void ConfirmExport_Button_Click(object sender, RoutedEventArgs e)
+        private void Export(string type)
         {
-            ComboBoxItem cbi = (ComboBoxItem)FileType_ComboBox.SelectedItem;
-            string? type = cbi.Content.ToString()?.ToLower();
-            if (type == null) return;
-
             var dialog = new Microsoft.Win32.SaveFileDialog();
             dialog.FileName = "exported_data";
 
-            switch(type)
+            switch (type)
             {
                 case "xml":
                     dialog.DefaultExt = ".xml";
@@ -85,10 +87,20 @@ namespace FleuristeVirtuel_WPF
                 }
 
                 MessageWindow.Show("Les données ont été exportées !", "Exportation réussie");
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageWindow.Show("Une erreur est survenue lors de l'export : " + ex, "Erreur d'exportation");
             }
+
+        }
+
+        private void ConfirmExport_Button_Click(object sender, RoutedEventArgs e)
+        {
+            ComboBoxItem cbi = (ComboBoxItem)FileType_ComboBox.SelectedItem;
+            string? type = cbi.Content.ToString()?.ToLower();
+            if (type == null) return;
+            Export(type);
 
             Close();
         }
