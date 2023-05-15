@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace FleuristeVirtuel_API.Utils
 {
+    /// <summary>
+    /// Représente une liste qui ne stocke pas de référence vers ses éléments.
+    /// C'est-à-dire qu'ils peuvent disparaître de la liste si aucune autre variable ne les référence.
+    /// </summary>
+    /// <typeparam name="T">Type d'élément à contenir.</typeparam>
     public class WeakList<T> : IEnumerable<T> where T : class
     {
         private readonly List<WeakReference<T>> _items;

@@ -258,6 +258,7 @@ namespace FleuristeVirtuel_WPF
 
         public void Prepare_Stocks()
         {
+            ignore_stock_selectionchanged = true;
             try
             {
                 List<TMagasin> magasins = conn.SelectMultipleRecords<TMagasin>("SELECT * FROM magasin");
@@ -276,8 +277,9 @@ namespace FleuristeVirtuel_WPF
             {
                 Stocks_Selector_Magasin.ItemsSource = new TMagasin[] { new() { nom_magasin = "Tous les magasins" } };
                 Stocks_Selector_Produit.ItemsSource = new TProduit[] { new() { nom_produit = "Tous les produits" } };
-                MessageBox.Show("Impossible de remplir les filtres des stocks :\n" +e, "Impossible de filtrer les stocks");
+                MessageWindow.Show("Impossible de remplir les filtres des stocks :\n" +e, "Impossible de filtrer les stocks");
             }
+            ignore_stock_selectionchanged = false;
         }
 
         public const int STOCKS_THRESHOLD = 5;
@@ -315,7 +317,7 @@ namespace FleuristeVirtuel_WPF
                     cmdParams.Add(new("@stocks_threshold", STOCKS_THRESHOLD));
                 }
 
-                List<TStock> stocks = conn.SelectMultipleRecords<TStock>(command, cmdParams.ToArray());
+                List<TStock> stocks = LoadingWindow.SelectMultipleRecords<TStock>(conn,command, cmdParams.ToArray());
                 foreach (var s in stocks) s.FetchForeignReferences(conn);
                 Stock_DataGrid.ItemsSource = stocks;
             } catch(Exception e)
@@ -329,7 +331,7 @@ namespace FleuristeVirtuel_WPF
         {
             try
             {
-                List<TCommande> commandes = conn.SelectMultipleRecords<TCommande>("SELECT * FROM commande");
+                List<TCommande> commandes = LoadingWindow.SelectMultipleRecords<TCommande>(conn, "SELECT * FROM commande");
                 foreach(var c in commandes) c.FetchForeignReferences(conn);
                 Commande_DataGrid.ItemsSource = commandes;
             }
@@ -689,8 +691,10 @@ namespace FleuristeVirtuel_WPF
             Reload_Stocks();
         }
 
+        bool ignore_stock_selectionchanged = false;
         private void Stocks_Selector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (ignore_stock_selectionchanged) return;
             Reload_Stocks();
         }
 
@@ -899,7 +903,7 @@ namespace FleuristeVirtuel_WPF
                             ExportDataWindow.Open<TCommande>(Commande_DataGrid.ItemsSource);
                             break;
                         default:
-                            MessageBox.Show("Type de données à exporter invalide !");
+                            MessageWindow.Show("Type de données à exporter invalide !", "FleuristeVirtuel");
                             break;
                     }
                 }

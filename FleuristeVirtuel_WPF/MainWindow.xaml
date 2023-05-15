@@ -21,7 +21,7 @@
         <local:MonthCountConverter x:Key="MonthCountConverter" />
     </Window.Resources>
 
-    <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
+    <TabControl Margin="0,10,0,0" Padding="0" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged" x:Name="maintab">
         <TabItem>
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">

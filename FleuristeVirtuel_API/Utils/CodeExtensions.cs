@@ -58,6 +58,14 @@ namespace FleuristeVirtuel_API.Utils
         //    throw new FieldAccessException("Cannot access member type, this is not a property nor a field!");
         //}
 
+        /// <summary>
+        /// Supprime un élément d'une liste et de la base de données.
+        /// </summary>
+        /// <typeparam name="T">Type d'instance à supprimer.</typeparam>
+        /// <param name="liste">Liste où supprimer l'élément.</param>
+        /// <param name="item">Element à supprimer.</param>
+        /// <param name="tableName">Table où supprimer l'enregistrement.</param>
+        /// <param name="connection">Connexion à la base de données.</param>
         public static void DeleteAndRemove<T>(this List<T> liste, T item, string tableName, DbConnection connection) where T : DbRecord, new()
         {
             item.DeleteFrom(tableName, connection);
@@ -125,6 +133,14 @@ namespace FleuristeVirtuel_API.Utils
             xmlDocument.Save(fileName);
         }
 
+        /// <summary>
+        /// Permet d'utiliser Convert.ChangeType avec comme type de destination un type Nullable.
+        /// </summary>
+        /// <param name="value">Valeur à convertir.</param>
+        /// <param name="conversionType">Type de destination (peut être Nullable)</param>
+        /// <returns>value dans le type conversionType.</returns>
+        /// <exception cref="ArgumentNullException">Le type de destination est null.</exception>
+        /// <exception cref="Exception">Le type de destination est incompatible.</exception>
         public static object? ChangeNullableType(object? value, Type conversionType)
         {
             if (conversionType == null)

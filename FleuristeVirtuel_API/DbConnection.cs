@@ -6,6 +6,9 @@ using System.Reflection;
 
 namespace FleuristeVirtuel_API
 {
+    /// <summary>
+    /// Englobe une MySqlConnection avec quelques méthodes utiles.
+    /// </summary>
     public class DbConnection
     {
         private const string DB_SERVER = "localhost";
@@ -87,6 +90,14 @@ namespace FleuristeVirtuel_API
             return PrepareCommand(commandText, parameters).ExecuteReaderAsync().ContinueWith(task => (MySqlDataReader)task.Result);
         }*/
 
+        /// <summary>
+        /// Similaire à ExecuteScalar pour récupérer un nom où une seule case d'une requête.
+        /// </summary>
+        /// <typeparam name="T">Type de donnée à récupérer.</typeparam>
+        /// <param name="commandText">Commande à exécuter.</param>
+        /// <param name="columnIndex">Colonne à récupérer (défaut à 0).</param>
+        /// <param name="parameters">Paramètres de la commande SQL.</param>
+        /// <returns>Une seule valeur.</returns>
         public T? SelectSingleCell<T>(string commandText, object? columnIndex = null, params DbParam[] parameters)
         {
             object nonNullableColumn = columnIndex ?? 0;
@@ -126,6 +137,13 @@ namespace FleuristeVirtuel_API
             return result;
         }
 
+        /// <summary>
+        /// Sélectionne une instance de DbRecord constituée de données de la base.
+        /// </summary>
+        /// <typeparam name="T">Type d'enregistrement à récupérer.</typeparam>
+        /// <param name="commandText">Commande pour la sélection.</param>
+        /// <param name="parameters">Paramètres de la requête SQL.</param>
+        /// <returns>Une instance de type T.</returns>
         public T? SelectSingleRecord<T>(string commandText, params DbParam[] parameters) where T : DbRecord, new()
         {
             using MySqlDataReader reader = ExecuteReader(commandText, parameters);

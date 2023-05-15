@@ -14,9 +14,9 @@ using System.Threading.Tasks;
 namespace FleuristeVirtuel_API.Types
 {
     /// <summary>
-    /// This represents a table in the database.
+    /// Représente une table de la base de données.
+    /// Ce type doit être hérité par chaque table utilisée.
     /// </summary>
-    /// <typeparam name="T">is the type itself.</typeparam>
     public abstract class DbRecord
     {
         private bool isUnique = false;
@@ -30,6 +30,12 @@ namespace FleuristeVirtuel_API.Types
                 existingInstances.Add(type, new());
         }
 
+        /// <summary>
+        /// Vérifie qu'un nom de table est valide pour empêcher les bugs lors d'une requête SQL.
+        /// </summary>
+        /// <param name="tableName">Nom de la table.</param>
+        /// <param name="action">Nom de l'action qui demande la vérification (pour afficher un message).</param>
+        /// <exception cref="FormatException">Une erreur si le format n'est pas correct.</exception>
         private void ThrowIfInvalidTableName(string tableName, string action = "")
         {
             if (action.Length == 0)
@@ -40,6 +46,13 @@ namespace FleuristeVirtuel_API.Types
                 throw new FormatException($"Invalid table {tableName} {action} type {GetType().Name}!");
         }
 
+        /// <summary>
+        /// Insère cette instance dans une table.
+        /// </summary>
+        /// <param name="tableName">Table où insérer l'instance.</param>
+        /// <param name="connection">Connexion à la base de données.</param>
+        /// <param name="insertPrimaryKey">Est-ce que le code doit insérer les clés primaires ou laisser MySQL les générer.</param>
+        /// <exception cref="Exception">En cas de mauvais nom de table ou d'erreur d'insertion.</exception>
         public void InsertInto(string tableName, DbConnection connection, bool insertPrimaryKey = false)
         {
             ThrowIfInvalidTableName(tableName, "insert");
@@ -50,6 +63,7 @@ namespace FleuristeVirtuel_API.Types
             Dictionary<string, object> parts = new();
             PropertyInfo? lastPrimaryKeyInfo = null;
 
+            // on récupère toutes les propriétés de la classe, ce sont les colonnes de notre table mysql
             Type currentType = GetType();
             foreach (var pi in currentType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
@@ -106,6 +120,13 @@ namespace FleuristeVirtuel_API.Types
             isRemote = true;
         }
 
+        /// <summary>
+        /// Met à jour une ligne dans la base de données à partir de cette instance.
+        /// </summary>
+        /// <param name="tableName">Table à modifier.</param>
+        /// <param name="connection">Connexion à la base de données.</param>
+        /// <exception cref="InvalidDataException">Cette instance n'a jamais été insérée précédemment.</exception>
+        /// <exception cref="Exception">En cas de mauvais nom de table ou d'erreur de mise à jour.</exception>
         public void Update(string tableName, DbConnection connection)
         {
             ThrowIfInvalidTableName(tableName, "update");
@@ -155,6 +176,13 @@ namespace FleuristeVirtuel_API.Types
                 throw new Exception($"Error while updating {tableName}, no row was affected!");
         }
 
+        /// <summary>
+        /// Supprime une ligne de la base de données représentée par cette instance.
+        /// </summary>
+        /// <param name="tableName">Nom de la table où supprimer la ligne.</param>
+        /// <param name="connection">Connexion à la base de données.</param>
+        /// <exception cref="InvalidDataException">Cette instance n'a jamais été insérée précédemment.</exception>
+        /// <exception cref="Exception">En cas de mauvais nom de table ou d'erreur de suppression.</exception>
         public void DeleteFrom(string tableName, DbConnection connection)
         {
             ThrowIfInvalidTableName(tableName, "delete");
@@ -201,6 +229,12 @@ namespace FleuristeVirtuel_API.Types
             existingInstances[currentType].Remove(this);
         }
 
+        /// <summary>
+        /// Remplit les propriétés représentants les clés étrangères de cette instance.
+        /// </summary>
+        /// <param name="connection">Connexion à la base de donnée.</param>
+        /// <exception cref="AccessViolationException">Mauvais nom de table dans un attribut ForeignKey.</exception>
+        /// <exception cref="Exception">Erreur de récupération des données.</exception>
         public void FetchForeignReferences(DbConnection connection)
         {
             Type currentType = GetType();
@@ -241,6 +275,13 @@ namespace FleuristeVirtuel_API.Types
             }
         }
 
+        /// <summary>
+        /// Créé une instance représentant un futur enregistrement dans la base de données (pas encore inséré).
+        /// </summary>
+        /// <typeparam name="T">Type représentant la table.</typeparam>
+        /// <param name="primaryKeys">Liste de clés primaires.</param>
+        /// <returns>Une instance représentant un enregistrement d'une table.</returns>
+        /// <exception cref="Exception">Impossible de créer une instance de ce type.</exception>
         public static T CreateEmptyOrGetInstance<T>(params object[] primaryKeys) where T : DbRecord, new()
         {
             Type t = typeof(T);
@@ -282,6 +323,12 @@ namespace FleuristeVirtuel_API.Types
             return count;
         }
 
+        /// <summary>
+        /// Créé une instance d'une classe de type T à partir d'un MySqlDataReader.
+        /// </summary>
+        /// <typeparam name="T">Type représentant la table.</typeparam>
+        /// <param name="reader">Instance depuis laquelle lire les informations.</param>
+        /// <returns>Une instance remplie.</returns>
         public static T CreateFromReader<T>(MySqlDataReader reader) where T : DbRecord, new()
         {
             Type childType = typeof(T);
