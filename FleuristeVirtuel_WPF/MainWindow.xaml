@@ -753,8 +753,22 @@
                             <StackPanel>
                                 <TextBlock Foreground="White" Margin="0,3" TextWrapping="Wrap">
                                     Merci d'indiquer au fleuriste la raison de votre commande ainsi que les fleurs que vous souhaiteriez
-                                    avoir dans votre bouquet dans la case "commentaire".
+                                    avoir dans votre arrangement floral dans la case "commentaire".
                                 </TextBlock>
+
+                                <TextBlock Foreground="White" Margin="0,5">
+                                    Prix maximum :
+                                </TextBlock>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="10"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0" Margin="0,0,5,0" x:Name="cclient_perso_prixmax"/>
+                                    <TextBlock Foreground="White" Grid.Column="1" Text="€"/>
+                                </Grid>
 
                                 <Button Height="30" x:Name="client_valider_commande_perso" Click="client_valider_commande_perso_Click">
                                     Valider la commande

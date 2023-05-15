@@ -1008,8 +1008,30 @@ namespace FleuristeVirtuel_WPF
 
         private void client_valider_commande_perso_Click(object sender, RoutedEventArgs e)
         {
-            TCommande? commande = RecupBaseCommandeClient();
-            if (commande == null) return;
+            try
+            {
+                TCommande? commande = RecupBaseCommandeClient();
+                if (commande == null) return;
+
+                if(!uint.TryParse(cclient_perso_prixmax.Text, out uint _prix_max) || _prix_max == 0)
+                {
+                    MessageWindow.Show("Merci de rentrer un nombre entier strictement positif\ncomme prix maximum de votre arrangement.", "Donnée invalide");
+                    return;
+                }
+
+                commande.statut = "CPAV";
+                commande.adresse_livraison?.InsertInto("adresse", conn);
+                commande.prix_avant_reduc = 0;
+                commande.prix_maximum = _prix_max;
+                commande.id_adresse = commande.adresse_livraison?.id_adresse ?? throw new Exception("Impossible de sauvegarder la commande!");
+                commande.InsertInto("commande", conn);
+
+                CommandeValidee();
+            }
+            catch (Exception er)
+            {
+                MessageWindow.Show("Impossible de passer la commande : " + er, "Erreur de commande");
+            }
         }
 
         private void client_valider_commande_standard_Click(object sender, RoutedEventArgs e)
@@ -1089,7 +1111,9 @@ namespace FleuristeVirtuel_WPF
             cclient_addr_ville.Text = "";
             cclient_msg_accompagnement.Text = "";
             cclient_commentaire.Text = "";
+
             cclient_bouquet.SelectedItem = null;
+            cclient_perso_prixmax.Text = "";
 
             UpdateClientFidelite();
         }
