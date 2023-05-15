@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FleuristeVirtuel_API", "Fle
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FleuristeVirtuel_WPF", "FleuristeVirtuel_WPF\FleuristeVirtuel_WPF.csproj", "{11D40811-3EF8-4316-BBF3-16ACEBFD8D50}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{BD28C495-6D7D-4532-B69E-EE70386A29B9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{EBCC169C-0116-42FB-9037-362C91DE55C7}"
 	ProjectSection(SolutionItems) = preProject
-		CreationTables.sql = CreationTables.sql
+		BelleFleur.sql = BelleFleur.sql
+		Documents\_CreationTables.sql = Documents\_CreationTables.sql
+		Documents\creer_sql_final.py = Documents\creer_sql_final.py
 	EndProjectSection
 EndProject
 Global
